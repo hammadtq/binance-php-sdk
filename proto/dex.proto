@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package Binance;
+
+message Token {
+    string denom = 1;
+    int64 amount = 2;
+}
+
+message AppAccount {
+    //    uint64 SIZE-OF-ENCODED // varint encoded length of the structure after encoding
+    //    0x4BDC4C27   // hardcoded, object type prefix in 4 bytes
+    message baseAccount {
+        bytes address = 1;
+        repeated Token coins = 2;
+        bytes public_key = 3;
+        int64 account_number = 4;
+        int64 sequence = 5;
+    }
+    baseAccount base = 1;
+    string name = 2;
+    repeated Token frozen = 3;
+    repeated Token locked = 4;
+}

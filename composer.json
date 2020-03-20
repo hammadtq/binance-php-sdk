@@ -1,0 +1,15 @@
+{
+    "autoload": {
+        "psr-4": {
+            "": "gen",
+          "Binance\\": "src"
+        }
+      },
+    "require": {
+        "guzzlehttp/guzzle": "~6.0",
+        "mdanter/ecc": "^0.5.2",
+        "graze/guzzle-jsonrpc": "^3.2",
+        "bitwasp/buffertools": "^0.5.7",
+        "google/protobuf": "^3.11"
+    }
+}
