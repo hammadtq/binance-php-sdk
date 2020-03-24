@@ -32,10 +32,13 @@ use Brick\Math\BigDecimal;
 
 new Bech32Exception();
 
-$client = new GuzzleHttp\Client();
-$res = $client->get('https://testnet-dex.binance.org/api/v1/node-info');
+// $client = new GuzzleHttp\Client();
+// $res = $client->get('https://testnet-dex.binance.org/api/v1/node-info');
 
-echo $res->getBody()[node_info];                 // {"type":"User"...'
+//echo $res->getBody();                 // {"type":"User"...'
+
+    // $response = json_decode($res->getBody(), true);
+    // var_dump($response["node_info"]["network"]);
 
 // $adapter = EccFactory::getAdapter();
 // $generator = EccFactory::getSecgCurves()->generator256k1();
@@ -145,9 +148,11 @@ echo $res->getBody()[node_info];                 // {"type":"User"...'
 // var_dump($rawAddress);
 
 
-// $bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
+$bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
 
-// $bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "-42423", "BNB", "asset");
+$bncClient->initChain();
+
+$bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "4", "BNB", "asset");
 
 
 ?>

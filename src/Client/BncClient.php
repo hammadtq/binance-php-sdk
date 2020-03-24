@@ -2,11 +2,13 @@
 
 namespace Binance\Client;
 
+use GuzzleHttp;
 use Binance\Crypto\Bech32;
 use Binance\Crypto\Address;
 use Binance\Utils\ValidateHelper;
 use Brick\Math\BigDecimal;
 use Binance\Client\AbciRequest;
+use Binance\Tx\Transaction;
 
 define("BASENUMBER", pow(10,8));
 
@@ -15,9 +17,11 @@ class BncClient {
     public $server;
     public $account_number;
     public $chainId;
+    public $_source;
 
-    function __construct($server) {
+    function __construct($server, $source = 0) {
         $this->server = $server;
+        $this->_source = $source;
     }
 
     /**
@@ -26,14 +30,12 @@ class BncClient {
    */
     function initChain() {
         if (!$this->chainId) {
-            // $data = $this->_httpClient.request("get", api.nodeInfo)
-            // $this->chainId = data.result.node_info && data.result.node_info.network
             $client = new GuzzleHttp\Client();
             $res = $client->get('https://testnet-dex.binance.org/api/v1/node-info');
-            echo $res->getBody()->node_info();
-
+            $json = json_decode($res->getBody(), true);
+            $this->chainId = $json["node_info"]["network"];
         }
-        return this;
+        return $this;
     }
 
     /**
@@ -57,39 +59,46 @@ class BncClient {
         
         $validateHelper->checkNumber($amount, "amount");
 
-        $coin = '{denom: '.$asset.', amount: '.$amount.'}';
+        //$coin = '{denom: '.$asset.', amount: '.$amount.'}';
 
-        $msg = '{
-            inputs: [{
-              address: '.$accCode.',
-              coins: ['.$coin.']
-            }],
-            outputs: [{
-              address: '.$toAccCode.',
-              coins: ['.$coin.']
-            }],
-            msgType: "MsgSend"
-          }';
+        $coin = (object)array('denom' => $asset, 'amount' => $amount);
 
-        $signMsg = '{
-            inputs: [{
-              address: '.$fromAddress.',
-              coins: [{
-                amount: '.$amount.',
-                denom: '.$asset.'
-              }]
-            }],
-            outputs: [{
-              address: '.$toAddress.',
-              coins: [{
-                amount: '.$amount.',
-                denom: '.$asset.'
-              }]
-            }]
-          }';
-        echo $signMsg; 
+        //var_dump(json_encode($coin));
+
+        // $msg = '{
+        //     inputs: [{
+        //       address: '.$accCode.',
+        //       coins: ['.$coin.']
+        //     }],
+        //     outputs: [{
+        //       address: '.$toAccCode.',
+        //       coins: ['.$coin.']
+        //     }],
+        //     msgType: "MsgSend"
+        //   }';
+
+        $msg = (object)(array('inputs' => array('address' => $accCode, 'coins' => [$coin]), 'outputs' => array('address' => $toAccCode, 'coins' => [$coin]), 'msgType' => 'MsgSend'));
+
+        // $signMsg = '{
+        //     inputs: [{
+        //       address: '.$fromAddress.',
+        //       coins: [{
+        //         amount: '.$amount.',
+        //         denom: '.$asset.'
+        //       }]
+        //     }],
+        //     outputs: [{
+        //       address: '.$toAddress.',
+        //       coins: [{
+        //         amount: '.$amount.',
+        //         denom: '.$asset.'
+        //       }]
+        //     }]
+        //   }';
         
-        $signedTx = $this->_prepareTransaction($msg, $signMsg, $fromAddress, $sequence, $memo);
+        $signMsg = (object)array('inputs' => array('address' => $fromAddress, 'coins' => array('amount'=>$amount, 'denom'=>$asset)), 'outputs' => array('address' => $toAddress, 'coins' => array('amount'=>$amount, 'denom'=>$asset)));
+        
+        $signedTx = $this->_prepareTransaction($msg, $signMsg, $fromAddress, $sequence, $memo, "MsgSend");
 
     }
 
@@ -102,33 +111,31 @@ class BncClient {
    * @param {String} memo optional memo
    * @return {Transaction} signed transaction
    */
-    function _prepareTransaction($msg, $stdSignMsg, $address, $sequence = null, $memo = "") {
+    function _prepareTransaction($msg, $stdSignMsg, $address, $sequence = null, $memo = "", $msgType = null) {
         if ((!$this->account_number || ($sequence !== 0 && !$sequence)) && $address) {
-            var_dump($sequence);
 
             $request = new AbciRequest();
 
             $result = $request->GetAppAccount($this->server, $address);
 
-            var_dump($result->getBase()->getSequence());
-
             $sequence = $result->getBase()->getSequence();
             $this->account_number = $result->getBase()->getAccountNumber();
-
-            var_dump($this->account_number);
         }
 
-        $options = '{
-            account_number: '.$this->account_number.',
-            chain_id: this.chainId,
-            memo: memo,
-            msg,
-            sequence: parseInt(sequence),
-            source: this._source,
-            type: msg.msgType,
-        }';
+        // $options = '{
+        //     account_number: '.$this->account_number.',
+        //     chain_id: '.$this->chainId.',
+        //     memo: '.$memo.',
+        //     '.json_encode($msg).',
+        //     sequence: '.$sequence.',
+        //     source: '.$this->_source.',
+        //     type: '.$msg->msgType.'
+        // }';
 
-        // const tx = new Transaction(options)
+        $options = (object)array('account_number' => $this->account_number, 'chain_id' => $this->chainId, 'memo' => $memo, 'msg' => $msg, 'sequence' => $sequence, 'source' => $this->_source, 'type' => $msg->msgType);
+
+        $tx = new Transaction($options);
+        var_dump($tx);
         // return this._signingDelegate.call(this, tx, stdSignMsg)
     }
 
