@@ -7,16 +7,19 @@ require 'vendor/autoload.php';
 //require 'Bech32.php';
 //require 'Keystore.php';
 
-use Binance\Bech32;
+use Binance\Crypto\Bech32;
+use Binance\Crypto\Address;
 use Binance\Keystore;
 use Binance\Hash;
 use Binance\Bech32Exception;
 use Binance\Types\Buffer;
 use BitWasp\Buffertools\Parser;
 
+use Binance\Client\BncClient;
+
 //use Transaction\AppAccount;
 
-//use GuzzleHttp\Client;
+use GuzzleHttp;
 use Mdanter\Ecc\EccFactory;
 use Mdanter\Ecc\Serializer\PrivateKey\PemPrivateKeySerializer;
 use Mdanter\Ecc\Serializer\PrivateKey\DerPrivateKeySerializer;
@@ -25,14 +28,14 @@ use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
 use Mdanter\Ecc\Serializer\Point\CompressedPointSerializer;
 use Mdanter\Ecc\Serializer\Point\UncompressedPointSerializer;
 
+use Brick\Math\BigDecimal;
+
 new Bech32Exception();
 
-// $client = new GuzzleHttp\Client();
-// $res = $client->get('https://testnet-dex.binance.org/api/v1/time', [
-//     'auth' =>  ['user', 'pass']
-// ]);
+$client = new GuzzleHttp\Client();
+$res = $client->get('https://testnet-dex.binance.org/api/v1/node-info');
 
-// echo $res->getBody();                 // {"type":"User"...'
+echo $res->getBody()[node_info];                 // {"type":"User"...'
 
 // $adapter = EccFactory::getAdapter();
 // $generator = EccFactory::getSecgCurves()->generator256k1();
@@ -87,57 +90,64 @@ new Bech32Exception();
 
 //echo Hash::sha256ripe160($public->getBuffer())
 
-use Graze\GuzzleHttp\JsonRpc\Client;
+// use Graze\GuzzleHttp\JsonRpc\Client;
+// use Psr\Http\Message\ResponseInterface;
+// use GuzzleHttp\Exception\RequestException;
 
-// Create the client
-$client = Client::factory('https://data-seed-pre-2-s1.binance.org');
+// // Create the client
+// $client = Client::factory('https://data-seed-pre-2-s1.binance.org');
 
 // Send a notification
 // $client->send($client->notification('method', ['key'=>'value']));
 
 // Send a request that expects a response
-$res = $client->send($client->request(123, 'abci_query', ['path'=>'/account/tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r']));
+//$promise = $client->sendAsync($client->request(123, 'abci_query', ['path'=>'/account/tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r']));
 
-$json = json_decode($res->getBody());
+//$promise->wait();
 
-var_dump($json->result->response->value);
+//var_dump($res);
 
-//$decoded = bin2hex(base64_decode($json->result->response->value));
+//$promise->then(
+    //function (ResponseInterface $res) {
 
-$decodedIn64 = base64_decode($json->result->response->value);
+// use Binance\Utils\Request;
 
-$buffer = new Buffer($json->result->response->value);
-$parser = new Parser($buffer);
+// $request = new Request('https://data-seed-pre-2-s1.binance.org');
+// $json = $request->AsyncRequest('abci_query', ['path'=>'/account/tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r'])->wait(function($results){
+//     return $results;
+// });;
 
-$protoClass = new AppAccount();
+// var_dump($json);
 
-$response = substr($decodedIn64, 4);
+// $decodedIn64 = base64_decode($json->result->response->value);
 
-$protoClass -> mergeFromString($response);
+// $protoClass = new AppAccount();
 
-// WE HAVE DECODED THE MESSAGE
-// NOW ENCODE THE ADDRESS IN BECH32
-$base = $protoClass -> getBase() -> getAddress();
+// $response = substr($decodedIn64, 4);
 
-var_dump(bin2hex($base));
+// $protoClass -> mergeFromString($response);
 
-$chars = array_values(unpack('C*', $base));
+// // WE HAVE DECODED THE MESSAGE
+// // NOW ENCODE THE ADDRESS IN BECH32
+// $rawAddress = $protoClass -> getBase() -> getAddress();
 
-$bech32 = new Bech32();
-$convertedBits = $bech32->convertBits($chars, count($chars), 8, 5, true);
-echo "<br/>";
-$bech32EncodedAddress = $bech32->encode("tbnb", $convertedBits);
+// $sequence = $protoClass -> getBase() -> getSequence();
 
-echo $bech32EncodedAddress;
+// var_dump("sequence".$sequence);
+
+// // NOW DECODE FROM BECH32
+// $address = new Address();
+
+// $bech32EncodedAddress = $address->EncodeAddress($rawAddress);
+// var_dump($bech32EncodedAddress);
+
+// $rawAddress = $address->DecodeAddress($bech32EncodedAddress);
+// var_dump($rawAddress);
 
 
-// NOW DECODE FROM BECH32
-list ($gotHRP, $data) = $bech32->decode($bech32EncodedAddress);
-$convertedBitsAgain = $bech32->convertBits($data, count($data), 5, 8, true);
-$chars = array_map("chr", $convertedBitsAgain);
-$bin = join($chars);
-$hex = bin2hex($bin);
-var_dump($hex);
+// $bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
+
+// $bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "-42423", "BNB", "asset");
 
 
 ?>

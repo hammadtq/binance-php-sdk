@@ -1,6 +1,6 @@
 <?php
 
-namespace Binance;
+namespace Binance\Crypto;
 
 use Binance\Bech32Exception;
 

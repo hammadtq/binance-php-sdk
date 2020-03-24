@@ -38,6 +38,7 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         ),
         'B' => 
         array (
+            'Brick\\Math\\' => 11,
             'BitWasp\\Buffertools\\' => 20,
             'Binance\\' => 8,
         ),
@@ -79,6 +80,10 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         'FG\\' => 
         array (
             0 => __DIR__ . '/..' . '/fgrosse/phpasn1/lib',
+        ),
+        'Brick\\Math\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/brick/math/src',
         ),
         'BitWasp\\Buffertools\\' => 
         array (

@@ -15,6 +15,7 @@ return array(
     'Google\\Protobuf\\' => array($vendorDir . '/google/protobuf/src/Google/Protobuf'),
     'GPBMetadata\\Google\\Protobuf\\' => array($vendorDir . '/google/protobuf/src/GPBMetadata/Google/Protobuf'),
     'FG\\' => array($vendorDir . '/fgrosse/phpasn1/lib'),
+    'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
     'BitWasp\\Buffertools\\' => array($vendorDir . '/bitwasp/buffertools/src/Buffertools'),
     'Binance\\' => array($baseDir . '/src'),
     '' => array($baseDir . '/gen'),

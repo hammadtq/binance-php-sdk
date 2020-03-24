@@ -46,6 +46,53 @@
         "description": "Toolbox for working with binary and hex data. Similar to NodeJS Buffer."
     },
     {
+        "name": "brick/math",
+        "version": "0.8.14",
+        "version_normalized": "0.8.14.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/brick/math.git",
+            "reference": "6f7a46b5c3d487b277f38fbd17df57d348cace8a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/brick/math/zipball/6f7a46b5c3d487b277f38fbd17df57d348cace8a",
+            "reference": "6f7a46b5c3d487b277f38fbd17df57d348cace8a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=7.1"
+        },
+        "require-dev": {
+            "php-coveralls/php-coveralls": "2.*",
+            "phpunit/phpunit": "7.*",
+            "vimeo/psalm": "3.*"
+        },
+        "time": "2020-02-17T13:57:43+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Brick\\Math\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "description": "Arbitrary-precision arithmetic library",
+        "keywords": [
+            "Arbitrary-precision",
+            "BigInteger",
+            "BigRational",
+            "arithmetic",
+            "bigdecimal",
+            "bignum",
+            "brick",
+            "math"
+        ]
+    },
+    {
         "name": "fgrosse/phpasn1",
         "version": "v2.1.1",
         "version_normalized": "2.1.1.0",
