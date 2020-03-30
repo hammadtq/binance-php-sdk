@@ -1,17 +1,17 @@
 <?php
 
-namespace Binance;
+namespace Binance\Crypto;
 
 use Binance\Types\Byte;
-use Binance\Bech32;
+use Binance\Crypto\Bech32;
 
-use Mdanter\Ecc\EccFactory;
-use Mdanter\Ecc\Serializer\PrivateKey\PemPrivateKeySerializer;
-use Mdanter\Ecc\Serializer\PrivateKey\DerPrivateKeySerializer;
-use Mdanter\Ecc\Serializer\PublicKey\PemPublicKeySerializer;
-use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
-use Mdanter\Ecc\Serializer\Point\CompressedPointSerializer;
-use Mdanter\Ecc\Serializer\Point\UncompressedPointSerializer;
+// use Mdanter\Ecc\EccFactory;
+// use Mdanter\Ecc\Serializer\PrivateKey\PemPrivateKeySerializer;
+// use Mdanter\Ecc\Serializer\PrivateKey\DerPrivateKeySerializer;
+// use Mdanter\Ecc\Serializer\PublicKey\PemPublicKeySerializer;
+// use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
+// use Mdanter\Ecc\Serializer\Point\CompressedPointSerializer;
+// use Mdanter\Ecc\Serializer\Point\UncompressedPointSerializer;
 
 class Keystore
 {
@@ -40,7 +40,7 @@ class Keystore
      * @param string $passphrase
      * @throws Exception
      */
-    public function __construct(string $data, string $passphrase)
+    public function RestoreKeyStore(string $data, string $passphrase, string $addrPrefix)
     {
         try {
             $data = json_decode($data)->crypto;
@@ -77,7 +77,7 @@ class Keystore
 
         $this->privateKey = $this->decryptPrivateKey($data->ciphertext, $derivedKey, $data->cipher, $data->cipherparams->iv);
         $this->publicKey = $this->createPublicKey($this->privateKey);
-        $this->address = $this->parseAddress($this->publicKey);
+        $this->address = $this->parseAddress($this->publicKey, $addrPrefix);
     }
 
     /**
@@ -144,8 +144,6 @@ class Keystore
      */
     private function createPublicKey(Byte $privateKey): Byte
     {
-        echo "<br/>Privarte Key:".$privateKey->getHex()."<br/>";
-
         $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
         /** @var resource $publicKey */
         $publicKey = null;
@@ -168,25 +166,20 @@ class Keystore
      * @return Address
      * @throws Exception
      */
-    private function parseAddress(Byte $publicKey): Address
+    private function parseAddress(Byte $publicKey, String $addrPrefix): String
     {   
-        
         $compressed = $publicKey->getHex();
         
         $sha256 = hash('sha256', hex2bin($compressed));
         $ripemd60 = hash('ripemd160', hex2bin($sha256));
 
-        
         $chars = array_values(unpack('C*', hex2bin($ripemd60)));
 
         $bech32 = new Bech32();
 
         $convertedBits = $bech32->convertBits($chars, count($chars), 8, 5, true);   
-        $bech32EncodedAddress = $bech32->encode("tbnb", $convertedBits);
-
-        echo $bech32EncodedAddress;
-        // $hash = Keccak::hash($publicKey->getBinary());
-        // return Address::init(substr($hash, -40, 40));
+        $bech32EncodedAddress = $bech32->encode($addrPrefix, $convertedBits);
+        
         return $bech32EncodedAddress;
     }
 
@@ -218,5 +211,13 @@ class Keystore
             $this->transactionSigner = new TransactionSigner($chainId);
         }
         return $this->transactionSigner->sign($transaction, $this->getPrivateKey());
+    }
+
+    function privateKeyToPublicKey($privateKey){
+        return($this->createPublicKey($privateKey));
+    } 
+
+    function publicKeyToAddress($publicKey, $addrPrefix){
+        return($this->parseAddress($publicKey, $addrPrefix));
     }
 }

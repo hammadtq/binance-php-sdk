@@ -2,6 +2,17 @@
 
 namespace Binance\Tx;
 
+use Binance\Encoder\Encoder;
+use Binance\Crypto\Keystore;
+use Binance\StdTx;
+use Binance\Send;
+use Binance\Send_Token;
+use Binance\Send\Input;
+use Binance\Send\Output;
+use Binance\StdSignature\PubKey;
+use Binance\StdSignature;
+use GuzzleHttp;
+use Google\Protobuf\Internal\CodedOutputStream;
 /**
  * Creates a new transaction object.
  * @example
@@ -28,12 +39,12 @@ class Transaction {
     
     function __construct($data) {
         $this->type = $data->type;
-        $this->sequence = $data->sequence || 0;
-        $this->account_number = $data->account_number || 0;
+        $this->sequence = $data->sequence ?? 0;
+        $this->account_number = $data->account_number ?? 0;
         $this->chain_id = $data->chain_id;
         $this->msgs = $data->msg ? [$data->msg] : [];
         $this->memo = $data->memo;
-        $this->source = $data->source || 0; // default value is 0
+        $this->source = $data->source ?? 0; // default value is 0
     }
 
     /**
@@ -55,7 +66,11 @@ class Transaction {
         // "source": this.source.toString()
         // }
 
-        return encoder.convertObjectToSignBytes($signMsg);
+        $signMsg = (object)(array('account_number' => strval($this->account_number), 'chain_id' => $this->chain_id, 'data' => null, 'memo' => $this->memo, 'msgs' => [$msg], 'sequence' => strval($this->sequence), 'source' => strval($this->source)));
+
+        var_dump($signMsg);
+        $encoder = new Encoder();
+        return $encoder->convertObjectToSignBytes($signMsg);
     }
 
     /**
@@ -65,13 +80,16 @@ class Transaction {
      * @return {Transaction}
      **/
     function addSignature($pubKey, $signature) {
-        $pubKey = $this->_serializePubKey(pubKey); // => Buffer
+        $pubKey = $this->_serializePubKey($pubKey); // => Buffer
+        echo "<br>pubkey<br/>";
+        var_dump($pubKey);
         // this.signatures = [{
         //     pub_key: pubKey,
         //     signature: signature,
         //     account_number: this.account_number,
         //     sequence: this.sequence,
         // }]
+        $this->signatures = array(array('pub_key' => $pubKey, 'signature' => $signature, 'account_number' => $this->account_number, 'sequence' => $this->sequence));
         return $this;
     }
 
@@ -80,23 +98,89 @@ class Transaction {
      * @param {object} opts msg field
      */
     function serialize() {
-        if (!this.signatures) {
+        if (!$this->signatures) {
             throw new Exception("need signature");
         }
 
-        $msg = this.msgs[0];
+        $msg = $this->msgs[0]->inputs;
+        $inputs = $this->msgs[0]->inputs;
+        $outputs = $this->msgs[0]->outputs;
+        //var_dump($msg);
+        $inputsArr = json_decode(json_encode($inputs), true);
+        //var_dump($inputsArr);
+        echo '<br/>---</br>';
+        var_dump([$this->signatures[0]['pub_key']]);
+        echo '<br/>---</br>';
+       
+        $msg = array('inputs' => 'afdsfas', 'address' => '$accCode', 'coins' => '[$coin]');
 
-        // $stdTx = {
-        //     msg: [msg],
-        //     signatures: this.signatures,
-        //     memo: this.memo,
-        //     source: this.source, // sdk value is 0, web wallet value is 1
-        //     data: "",
-        //     msgType: TxTypes.StdTx
-        // }
+        $token = new Send_Token();
+        $token->setDenom($this->msgs[0]->inputs['coins'][0]->denom); 
+        $token->setAmount($this->msgs[0]->inputs['coins'][0]->amount); 
 
-        $bytes = encoder.marshalBinary(stdTx);
-        return bytes.toString("hex");
+        $input = new Input();
+        $input->setAddress(hex2bin($this->msgs[0]->inputs['address']));
+        $input->setCoins([$token]);
+
+        $output = new Output();
+        $output->setAddress(hex2bin($this->msgs[0]->outputs['address']));
+        $output->setCoins([$token]);
+
+        $msgSend = new Send();
+        $msgSend->setInputs([$input]);
+        $msgSend->setOutputs([$output]);  
+        
+        $msgToSet = $msgSend->serializeToString();
+        $msgToSetPrefixed = hex2bin('2A2C87FA'.bin2hex($msgToSet));
+        var_dump(bin2hex($msgToSetPrefixed));
+        var_dump(bin2hex($this->signatures[0]['signature']));
+        //$pubkey = new PubKey([$this->signatures[0]['pub_key']]);
+        $stdSignature = new StdSignature();
+        $stdSignature->setPubKey($this->signatures[0]['pub_key']);
+        $stdSignature->setSignature($this->signatures[0]['signature']);
+        $stdSignature->setAccountNumber($this->signatures[0]['account_number']);
+        $stdSignature->setSequence($this->signatures[0]['sequence']);
+
+        $signatureToSet = $stdSignature->serializeToString();
+        echo "signature to set:";
+        var_dump(bin2hex($signatureToSet));
+
+        $stdTx = new StdTx();
+        //$existingMsg = $stdTx->getMsgs();
+        
+        $stdTx->setMsgs([$msgToSetPrefixed]);
+        $stdTx->setSignatures([$signatureToSet]);
+        $stdTx->setMemo($this->memo);
+        $stdTx->setSource($this->source);
+        $stdTx->setData("");
+        //$stdTx->setMsgType("StdTx");
+        $stdTxBytes = $stdTx->serializeToString();
+        var_dump(bin2hex($stdTxBytes));
+        
+        $txWithPrefix = 'F0625DEE'.bin2hex($stdTxBytes);
+        var_dump($txWithPrefix);
+        $lengthPrefix = strlen(pack('H*', $txWithPrefix));
+        $output = new CodedOutputStream(2);
+        $output->writeVarint64($lengthPrefix);
+        $codedVarInt = $output->getData();
+        $txToPost = bin2hex($codedVarInt).$txWithPrefix;
+        var_dump($txToPost);
+       
+
+            $client = new GuzzleHttp\Client();
+            $response = $client->post('https://testnet-dex.binance.org/api/v1/broadcast', [
+                'debug' => TRUE,
+                'body' => $txToPost,
+                'headers' => [
+                'Content-Type' => 'text/plain',
+                ]
+            ]);
+            
+            $body = $response->getBody();
+            print_r(json_decode((string) $body));
+        
+        // $bytes = encoder.marshalBinary(stdTx);
+        // return bytes.toString("hex");
     }
 
     /**
@@ -115,37 +199,38 @@ class Transaction {
         }
 
         $signBytes = $this->getSignBytes($msg);
-        $privKeyBuf = Buffer.from($privateKey, "hex");
-        $signature = crypto.generateSignature($signBytes.toString("hex"), $privKeyBuf);
-        $this->addSignature(crypto.generatePubKey($privKeyBuf), $signature);
+        echo "sign_bytes<br/>";
+        var_dump($signBytes);
+
+        $privateKeyHex = $privateKey->getHex();
+
+
+        $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+
+        $msg32 = hash('sha256', $signBytes, true);
+        $privateKeySt = pack("H*", $privateKeyHex);
+
+        /** @var resource $signature */
+        $signature = null;
+        if (1 !== secp256k1_ecdsa_sign($context, $signature, $msg32, $privateKeySt)) {
+            throw new \Exception("Failed to create signature");
+        }
+        echo $signature;
+        $serialized = '';
+        secp256k1_ecdsa_signature_serialize_compact($context, $serialized, $signature);
+        echo sprintf("Produced signature: %s \n", bin2hex($serialized));
+        $keystore = new Keystore();
+        
+        $this->addSignature($keystore->privateKeyToPublicKey($privateKey), $serialized);
         return $this;
     }
 
-    /**
-     * Sets the client's private key for calls made by this client. Asynchronous.
-     * @param {string} privateKey the private key hexstring
-     * @param {boolean} localOnly set this to true if you will supply an account_number yourself via `setAccountNumber`. Warning: You must do that if you set this to true!
-     * @return {Promise}
-     */
-    function setPrivateKey($privateKey, $localOnly = false) {
-        if (privateKey !== this.privateKey) {
-            $address = crypto.getAddressFromPrivateKey($privateKey, $this->addressPrefix);
-            if (!$address) throw new Exception(`address is falsy: ${address}. invalid private key?`);
-            if (address === this.address) return $this; // safety
-            $this->privateKey = $privateKey;
-            $this->address = $address;
-            if (!$localOnly) {
-                // _setPkPromise is used in _sendTransaction for non-await calls
-                try {
-                    $promise = $this->_setPkPromise = this._httpClient.request("get", `${api.getAccount}/${address}`);
-                    $data = await promise;
-                    $this->account_number = data.result.account_number;
-                } catch (e) {
-                    throw new Error(`unable to query the address on the blockchain. try sending it some funds first: ${address}`)
-                }
-            }
-        }
-        return $this;
+    function _serializePubKey($pubKey){
+        $hex = $pubKey -> getHex();
+        $lengthPrefix = strlen(pack('H*', $hex));
+        // prefix - length of the public key - public key
+        $encodedPubKey = hex2bin('eb5ae987'.dechex($lengthPrefix).$hex);
+        return $encodedPubKey;
     }
 
 }
