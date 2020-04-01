@@ -36,8 +36,23 @@ The repository was made on Mac OSX using PHP version `7.15.3`. You will also nee
 To handle big numbers, the SDK makes use of [brick/math](https://github.com/brick/math) precision library. Please consider using this or another `bcmath` or `gmp` based solutions while dealing with blockchain based numbers.
 
 ## Examples
+Few examples to interact with SDK are below:
 
-After cloning the repo, go to examples directory and see the code-style and examples to run.
+### Keystore reload and getting private key
+
+```$keystoreData = '{paste keystore data here or read from a file';
+
+$keystore= new Keystore();
+
+$keystore->RestoreKeyStore($keystoreData, "{keystore-password}", "tbnb");
+
+$privateKey = $keystore->getPrivateKey();
+```
+
+Similary, if you want to see the hex of private key, simply use this method:
+
+```$keystore->getPrivateKey()->getHex();
+```
 
 A typical transfer request will look something like this:
 
