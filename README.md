@@ -51,7 +51,7 @@ Similary, if you want to see the hex of private key, simply use this method:
 
 `$keystore->getPrivateKey()->getHex();`
 
-A typical transfer request will look something like this:
+### A typical transfer request will look something like this:
 
 ```php
 $bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
@@ -59,9 +59,12 @@ $bncClient->initChain();
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 $bncClient->setPrivateKey($privateKey);
 $response = $bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd", 0.001, "BNB", "3423423");
-
 ```
 
+### Placing an order
+```php
+$response = $bncClient->NewOrder("BNB_USDT.B-B7C", 1, 0.001, 1, 0, 1); //Symbol, side, price, quantity, sequence, timeinfore
+```
 
 
 ## Supported Methods
