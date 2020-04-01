@@ -10,6 +10,8 @@ use Binance\Utils\ValidateHelper;
 use Brick\Math\BigDecimal;
 use Binance\Client\AbciRequest;
 use Binance\Tx\Transaction;
+use Binance\Client\HttpClient;
+use Binance\Exception;
 
 define("BASENUMBER", pow(10,8));
 
@@ -22,13 +24,23 @@ class BncClient {
     public $NETWORK_PREFIX_MAPPING;
     public $privateKey;
     public $address;
+    private $api;
 
     function __construct($server, $source = 0) {
         $this->server = $server;
         $this->_source = $source;
+        $this->address = "";
         $this->NETWORK_PREFIX_MAPPING = array('testnet' => 'tbnb', 'mainnet' => 'bnb'); 
+        $this->api = array('broadcast' => "/api/v1/broadcast",
+            'nodeInfo' => "/api/v1/node-info",
+            'getAccount' => "/api/v1/account",
+            'getMarkets' => "/api/v1/markets",
+            'getSwaps' => "/api/v1/atomic-swaps",
+            'getOpenOrders' => "/api/v1/orders/open",
+            'getDepth' => "/api/v1/depth",
+            'getTransactions' => "/api/v1/transactions",
+            'getTx' => "/api/v1/tx");
     }
-
     
 
     /**
@@ -61,56 +73,85 @@ class BncClient {
         $toAccCode = $address->DecodeAddress($toAddress);
         
         $amount = strval(BigDecimal::of($amount)->multipliedBy(BASENUMBER));
-
         $validateHelper = new ValidateHelper();
-        
         $validateHelper->checkNumber($amount, "amount");
-
-        //$coin = '{denom: '.$asset.', amount: '.$amount.'}';
 
         $coin = (object)array('denom' => $asset, 'amount' => $amount);
 
-        //var_dump(json_encode($coin));
-
-        // $msg = '{
-        //     inputs: [{
-        //       address: '.$accCode.',
-        //       coins: ['.$coin.']
-        //     }],
-        //     outputs: [{
-        //       address: '.$toAccCode.',
-        //       coins: ['.$coin.']
-        //     }],
-        //     msgType: "MsgSend"
-        //   }';
-
         $msg = (object)(array('inputs' => array('address' => $accCode, 'coins' => [$coin]), 'outputs' => array('address' => $toAccCode, 'coins' => [$coin]), 'msgType' => 'MsgSend'));
-
-        // $signMsg = '{
-        //     inputs: [{
-        //       address: '.$fromAddress.',
-        //       coins: [{
-        //         amount: '.$amount.',
-        //         denom: '.$asset.'
-        //       }]
-        //     }],
-        //     outputs: [{
-        //       address: '.$toAddress.',
-        //       coins: [{
-        //         amount: '.$amount.',
-        //         denom: '.$asset.'
-        //       }]
-        //     }]
-        //   }';
         
         $signMsg = array('inputs' => array(array('address' => $fromAddress, 'coins' => array(array('amount'=>(int)$amount, 'denom'=>$asset)))), 'outputs' => array(array('address' => $toAddress, 'coins' => array(array('amount'=>(int)$amount, 'denom'=>$asset)))));
         
-        echo "<br/>signmsg</br>";
-        print_r(json_encode($signMsg, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
-        echo "<p>&nbsp;</p>";
-        $signedTx = $this->_prepareTransaction($msg, $signMsg, $fromAddress, $sequence, $memo, "MsgSend");
-
+        return($this->_prepareTransaction($msg, $signMsg, $fromAddress, $sequence, $memo, "MsgSend"));
     }
+
+    /**
+   * Place new order.
+   * @param {String} address
+   * @param {String} symbol the market pair
+   * @param {Number} side (1-Buy, 2-Sell)
+   * @param {Number} price
+   * @param {Number} quantity
+   * @param {Number} sequence optional sequence
+   * @param {Number} timeinforce (1-GTC(Good Till Expire), 3-IOC(Immediate or Cancel))
+   * @return {Promise} resolves with response (success or fail)
+   */
+  function NewOrder($symbol, $side, $price, $quantity, $sequence = null, $timeinforce = 1) {
+    if (!$this->address) {
+      throw new Exception("address should not be falsy");
+    }
+    if (!$symbol) {
+      throw new Exception("symbol should not be falsy");
+    }
+    if ($side !== 1 && $side !== 2) {
+      throw new Exception("side can only be 1 or 2");
+    }
+    if ($timeinforce !== 1 && $timeinforce !== 3) {
+      throw new Exception("timeinforce can only be 1 or 3");
+    }
+
+    $address = new Address();
+    $accCode = $address->DecodeAddress($this->address);
+
+    if ($sequence == 0 || !$sequence) {
+        $request = new AbciRequest();
+        $result = $request->GetAppAccount($this->server, $this->address);
+        $sequence = $result->getBase()->getSequence();
+    }
+
+    $bigPrice = strval(BigDecimal::of($price));
+    $bigQuantity = strval(BigDecimal::of($quantity));
+
+    $sequence = $sequence+1;
+    $id = strtoupper($accCode.'-'.$sequence);
+
+    $NewOrderMsg = (object)(array('sender' => $accCode, 
+        'id' => $id, 
+        'symbol' => $symbol,
+        'ordertype' => 2,
+        'side' => $side,
+        'price' =>  (int)strval(BigDecimal::of($bigPrice)->multipliedBy(BASENUMBER)),
+        'quantity' => (int)strval(BigDecimal::of($bigQuantity)->multipliedBy(BASENUMBER)),
+        'timeinforce' => $timeinforce,
+        'msgType' => "NewOrderMsg"
+    ));
+
+    $signMsg = (object)(array('id' => $NewOrderMsg->id,
+        'ordertype' => $NewOrderMsg->ordertype,
+        'price' => $NewOrderMsg->price,
+        'quantity' => $NewOrderMsg->quantity,
+        'sender' => $this->address,
+        'side' => $NewOrderMsg->side,
+        'symbol' => $NewOrderMsg->symbol,
+        'timeinforce' => $timeinforce
+    ));
+
+    $validateHelper = new ValidateHelper();
+    $validateHelper->checkNumber($NewOrderMsg->price, "price");
+    $validateHelper->checkNumber($NewOrderMsg->quantity, "quantity");
+    
+    return ($this->_prepareTransaction($NewOrderMsg, $signMsg, $this->address, $sequence, ""));
+  }
 
     /**
    * Prepare a serialized raw transaction for sending to the blockchain.
@@ -123,34 +164,28 @@ class BncClient {
    */
     function _prepareTransaction($msg, $stdSignMsg, $address, $sequence = null, $memo = "", $msgType = null) {
         if ((!$this->account_number || ($sequence !== 0 && !$sequence)) && $address) {
-
             $request = new AbciRequest();
-
             $result = $request->GetAppAccount($this->server, $address);
-
             $sequence = $result->getBase()->getSequence();
             $this->account_number = $result->getBase()->getAccountNumber();
         }
 
-        // $options = '{
-        //     account_number: '.$this->account_number.',
-        //     chain_id: '.$this->chainId.',
-        //     memo: '.$memo.',
-        //     '.json_encode($msg).',
-        //     sequence: '.$sequence.',
-        //     source: '.$this->_source.',
-        //     type: '.$msg->msgType.'
-        // }';
-
         $options = (object)array('account_number' => $this->account_number, 'chain_id' => $this->chainId, 'memo' => $memo, 'msg' => $msg, 'sequence' => $sequence, 'source' => $this->_source, 'type' => $msg->msgType);
 
         $tx = new Transaction($options);
-        var_dump($tx);
         $signedTx = $tx->sign($this->privateKey, $stdSignMsg);
-        echo "<br/>signedTx<br/><br/>";
+        echo "signedTx";
         var_dump($signedTx);
-        $signedBz = $signedTx->serialize();
-        // return this._signingDelegate.call(this, tx, stdSignMsg)
+        
+        if ($msg->msgType == "MsgSend"){
+            $txToPost = $signedTx->serializeTransfer();
+        }else if($msg->msgType = "NewOrderType"){
+            $txToPost = $signedTx->serializeNewOrder();
+        }
+        $httpClient = new HttpClient($this->network);
+        $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost);
+        var_dump($result);
+        return $result;
     }
 
     /**

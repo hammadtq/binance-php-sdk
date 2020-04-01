@@ -7,14 +7,12 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
-    'Mdanter\\Ecc\\' => array($vendorDir . '/mdanter/ecc/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
     'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Graze\\GuzzleHttp\\JsonRpc\\' => array($vendorDir . '/graze/guzzle-jsonrpc/src'),
     'Google\\Protobuf\\' => array($vendorDir . '/google/protobuf/src/Google/Protobuf'),
     'GPBMetadata\\Google\\Protobuf\\' => array($vendorDir . '/google/protobuf/src/GPBMetadata/Google/Protobuf'),
-    'FG\\' => array($vendorDir . '/fgrosse/phpasn1/lib'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
     'BitWasp\\Buffertools\\' => array($vendorDir . '/bitwasp/buffertools/src/Buffertools'),
     'Binance\\' => array($baseDir . '/src'),

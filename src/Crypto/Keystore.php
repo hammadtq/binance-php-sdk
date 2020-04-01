@@ -5,14 +5,6 @@ namespace Binance\Crypto;
 use Binance\Types\Byte;
 use Binance\Crypto\Bech32;
 
-// use Mdanter\Ecc\EccFactory;
-// use Mdanter\Ecc\Serializer\PrivateKey\PemPrivateKeySerializer;
-// use Mdanter\Ecc\Serializer\PrivateKey\DerPrivateKeySerializer;
-// use Mdanter\Ecc\Serializer\PublicKey\PemPublicKeySerializer;
-// use Mdanter\Ecc\Serializer\PublicKey\DerPublicKeySerializer;
-// use Mdanter\Ecc\Serializer\Point\CompressedPointSerializer;
-// use Mdanter\Ecc\Serializer\Point\UncompressedPointSerializer;
-
 class Keystore
 {
     /**

@@ -27,6 +27,47 @@ message StdSignature {
 
 // please note the field name is the JSON name.
 // msg
+message NewOrder {
+    //    0xCE6DC043 // hardcoded, object type prefix in 4 bytes
+    bytes sender = 1; // order originating address
+    string id = 2; // order id, optional
+    string symbol = 3; // symbol for trading pair in full name of the tokens
+    int64 ordertype = 4; // only accept 2 for now, meaning limit order
+    int64 side = 5; // 1 for buy and 2 fory sell
+    int64 price = 6; // price of the order, which is the real price multiplied by 1e8 (10^8) and rounded to integer
+    int64 quantity = 7; // quantity of the order, which is the real price multiplied by 1e8 (10^8) and rounded to integer
+    int64 timeinforce = 8; // 1 for Good Till Expire(GTE) order and 3 for Immediate Or Cancel (IOC)
+}
+
+// please note the field name is the JSON name.
+// msg
+message CancelOrder {
+    //    0x166E681B   // hardcoded, object type prefix in 4 bytes
+    bytes sender = 1; // order originating address'
+    string symbol = 2; // symbol for trading pair in full name of the tokens
+    string refid = 3; // order id of the one to cancel
+}
+
+// please note the field name is the JSON name.
+// msg
+message TokenFreeze {
+    //    0xE774B32D   // hardcoded, object type prefix in 4 bytes
+    bytes from = 1; // owner address
+    string symbol = 2; // token symbol, in full name with "-" suffix
+    int64 amount = 3; // amount of token to freeze
+}
+
+// please note the field name is the JSON name.
+// msg
+message TokenUnfreeze {
+    //    0x6515FF0D   // hardcoded, object type prefix in 4 bytes
+    bytes from = 1; // owner address
+    string symbol = 2; // token symbol, in full name with "-" suffix
+    int64 amount = 3; // amount of token to freeze
+}
+
+// please note the field name is the JSON name.
+// msg
 message Send {
     //    0x2A2C87FA   // hardcoded, object type prefix in 4 bytes
     message Token {
@@ -43,6 +84,15 @@ message Send {
     }
     repeated Input inputs = 1;
     repeated Output outputs = 2;
+}
+
+// please note the field name is the JSON name.
+// msg
+message Vote {
+    //    0xA1CADD36	    // hardcoded, object type prefix in 4 bytes
+    int64 proposal_id = 1; // ID of the proposal
+    bytes voter = 2; // address of the voter
+    int64 option = 3; // option from OptionSet chosen by the voter,
 }
 
 message Token {
@@ -64,4 +114,63 @@ message AppAccount {
     string name = 2;
     repeated Token frozen = 3;
     repeated Token locked = 4;
+}
+
+message AtomicSwapInfo {
+    bytes from = 1;
+    bytes to   = 2;
+    repeated Token out_amount = 3;
+    repeated Token in_amount = 4;
+    string expected_income = 5;
+    bytes recipient_other_chain = 6;
+    bytes random_number_hash = 7;
+    bytes random_number = 8;
+    int64 timestamp = 9;
+    bool  cross_chain = 10;
+    int64 expire_height = 11;
+    int64 index = 12;
+    int64 closed_time = 13;
+    int32 status = 14;
+}
+
+message TokenInfo{
+    string name = 1;
+    string symbol = 2;
+    string original_symbol = 3;
+    int64 total_supply = 4;
+    bytes owner = 5;
+    bool mintable = 6;
+}
+
+
+message DexFeeParam {
+    // 0x495A5044
+    message DexFeeField {
+        string fee_name = 1;
+        int64 fee_value = 2;
+    }
+    repeated DexFeeField dex_fee_fields = 1;
+}
+
+message FixedFeeParams {
+    // 0xC2A96FA3
+    string msg_type = 1;
+    int64 fee = 2;
+    int32 fee_for = 3;
+}
+
+message TransferFeeParam {
+    // 0x9A3D2769
+    FixedFeeParams fixed_fee_params = 1;
+    int64 multi_transfer_fee = 2;
+    int64 lower_limit_as_multi = 3;
+
+}
+
+// sync/async response
+message ResultBroadcastTx {
+    int32 code = 1; //uint32
+    bytes data = 2;
+    string log = 3;
+    bytes hash = 4;
 }

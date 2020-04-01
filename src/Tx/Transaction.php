@@ -11,8 +11,8 @@ use Binance\Send\Input;
 use Binance\Send\Output;
 use Binance\StdSignature\PubKey;
 use Binance\StdSignature;
-use GuzzleHttp;
 use Google\Protobuf\Internal\CodedOutputStream;
+use Binance\NewOrder;
 /**
  * Creates a new transaction object.
  * @example
@@ -36,6 +36,8 @@ use Google\Protobuf\Internal\CodedOutputStream;
  * @param {Number} data.source where does this transaction come from
  */
 class Transaction {
+
+    private $typePrefixes;
     
     function __construct($data) {
         $this->type = $data->type;
@@ -45,6 +47,31 @@ class Transaction {
         $this->msgs = $data->msg ? [$data->msg] : [];
         $this->memo = $data->memo;
         $this->source = $data->source ?? 0; // default value is 0
+        $this->typePrefixes = array(
+            'MsgSend' => "2A2C87FA",
+            'NewOrderMsg' => "CE6DC043",
+            'CancelOrderMsg' => "166E681B",
+            'IssueMsg' => "17EFAB80",
+            'BurnMsg' => "7ED2D2A0",
+            'FreezeMsg' => "E774B32D",
+            'UnfreezeMsg' => "6515FF0D",
+            'MintMsg' => "467E0829",
+            'ListMsg' => "B41DE13F",
+            'StdTx' => "F0625DEE",
+            'PubKeySecp256k1' => "EB5AE987",
+            'SignatureSecp256k1' => "7FC4A495",
+            'MsgSubmitProposal' => "B42D614E",
+            'MsgDeposit' => "A18A56E5",
+            'MsgVote' => "A1CADD36",
+            'TimeLockMsg' => "07921531",
+            'TimeUnlockMsg' => "C4050C6C",
+            'TimeRelockMsg' => "504711DA",
+            'HTLTMsg' => "B33F9A24",
+            'DepositHTLTMsg' => "63986496",
+            'ClaimHTLTMsg' => "C1665300",
+            'RefundHTLTMsg' => "3454A27C",
+            'SetAccountFlagsMsg' => "BEA6E301"
+        );
     }
 
     /**
@@ -83,6 +110,8 @@ class Transaction {
         $pubKey = $this->_serializePubKey($pubKey); // => Buffer
         echo "<br>pubkey<br/>";
         var_dump($pubKey);
+        echo "signature";
+        var_dump(bin2hex($signature));
         // this.signatures = [{
         //     pub_key: pubKey,
         //     signature: signature,
@@ -94,26 +123,13 @@ class Transaction {
     }
 
     /**
-     * encode signed transaction to hex which is compatible with amino
-     * @param {object} opts msg field
+     * encode signed transfer transaction to hex which is compatible with amino
      */
-    function serialize() {
+    function serializeTransfer() {
         if (!$this->signatures) {
             throw new Exception("need signature");
         }
-
-        $msg = $this->msgs[0]->inputs;
-        $inputs = $this->msgs[0]->inputs;
-        $outputs = $this->msgs[0]->outputs;
-        //var_dump($msg);
-        $inputsArr = json_decode(json_encode($inputs), true);
-        //var_dump($inputsArr);
-        echo '<br/>---</br>';
-        var_dump([$this->signatures[0]['pub_key']]);
-        echo '<br/>---</br>';
-       
-        $msg = array('inputs' => 'afdsfas', 'address' => '$accCode', 'coins' => '[$coin]');
-
+        
         $token = new Send_Token();
         $token->setDenom($this->msgs[0]->inputs['coins'][0]->denom); 
         $token->setAmount($this->msgs[0]->inputs['coins'][0]->amount); 
@@ -131,10 +147,39 @@ class Transaction {
         $msgSend->setOutputs([$output]);  
         
         $msgToSet = $msgSend->serializeToString();
-        $msgToSetPrefixed = hex2bin('2A2C87FA'.bin2hex($msgToSet));
-        var_dump(bin2hex($msgToSetPrefixed));
-        var_dump(bin2hex($this->signatures[0]['signature']));
-        //$pubkey = new PubKey([$this->signatures[0]['pub_key']]);
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['MsgSend'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode signed new order transaction to hex which is compatible with amino
+     */
+    function serializeNewOrder() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $newOrder = new NewOrder();
+        $newOrder->setSender(hex2bin($this->msgs[0]->sender));
+        $newOrder->setId($this->msgs[0]->id);
+        $newOrder->setSymbol($this->msgs[0]->symbol);
+        $newOrder->setOrdertype($this->msgs[0]->ordertype);
+        $newOrder->setSide($this->msgs[0]->side);
+        $newOrder->setPrice($this->msgs[0]->price);
+        $newOrder->setQuantity($this->msgs[0]->quantity);
+        $newOrder->setTimeinforce($this->msgs[0]->timeinforce);
+
+        $msgToSet = $newOrder->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['NewOrderMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode signatures in amino comaptible format
+     */
+    function serializeSign(){
         $stdSignature = new StdSignature();
         $stdSignature->setPubKey($this->signatures[0]['pub_key']);
         $stdSignature->setSignature($this->signatures[0]['signature']);
@@ -142,45 +187,29 @@ class Transaction {
         $stdSignature->setSequence($this->signatures[0]['sequence']);
 
         $signatureToSet = $stdSignature->serializeToString();
-        echo "signature to set:";
-        var_dump(bin2hex($signatureToSet));
+        return $signatureToSet;
+    }
 
+    /**
+     * encode wrap message in StdTX amino comaptible format
+     */
+    function serializeStdTx($msgToSetPrefixed, $signatureToSet){
         $stdTx = new StdTx();
-        //$existingMsg = $stdTx->getMsgs();
-        
         $stdTx->setMsgs([$msgToSetPrefixed]);
         $stdTx->setSignatures([$signatureToSet]);
         $stdTx->setMemo($this->memo);
         $stdTx->setSource($this->source);
         $stdTx->setData("");
-        //$stdTx->setMsgType("StdTx");
+       
         $stdTxBytes = $stdTx->serializeToString();
-        var_dump(bin2hex($stdTxBytes));
-        
-        $txWithPrefix = 'F0625DEE'.bin2hex($stdTxBytes);
-        var_dump($txWithPrefix);
+
+        $txWithPrefix = $this->typePrefixes['StdTx'].bin2hex($stdTxBytes);
         $lengthPrefix = strlen(pack('H*', $txWithPrefix));
         $output = new CodedOutputStream(2);
         $output->writeVarint64($lengthPrefix);
         $codedVarInt = $output->getData();
         $txToPost = bin2hex($codedVarInt).$txWithPrefix;
-        var_dump($txToPost);
-       
-
-            $client = new GuzzleHttp\Client();
-            $response = $client->post('https://testnet-dex.binance.org/api/v1/broadcast', [
-                'debug' => TRUE,
-                'body' => $txToPost,
-                'headers' => [
-                'Content-Type' => 'text/plain',
-                ]
-            ]);
-            
-            $body = $response->getBody();
-            print_r(json_decode((string) $body));
-        
-        // $bytes = encoder.marshalBinary(stdTx);
-        // return bytes.toString("hex");
+        return $txToPost;
     }
 
     /**
@@ -215,10 +244,10 @@ class Transaction {
         if (1 !== secp256k1_ecdsa_sign($context, $signature, $msg32, $privateKeySt)) {
             throw new \Exception("Failed to create signature");
         }
-        echo $signature;
+        
         $serialized = '';
         secp256k1_ecdsa_signature_serialize_compact($context, $serialized, $signature);
-        echo sprintf("Produced signature: %s \n", bin2hex($serialized));
+    
         $keystore = new Keystore();
         
         $this->addSignature($keystore->privateKeyToPublicKey($privateKey), $serialized);
