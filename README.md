@@ -51,8 +51,7 @@ $privateKey = $keystore->getPrivateKey();
 
 Similary, if you want to see the hex of private key, simply use this method:
 
-```$keystore->getPrivateKey()->getHex();
-```
+`$keystore->getPrivateKey()->getHex();`
 
 A typical transfer request will look something like this:
 
