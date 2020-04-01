@@ -83,15 +83,6 @@ class Transaction {
         if (!$msg) {
             throw new Exception("msg should be an object");
         }
-        // $signMsg = {
-        // "account_number": this.account_number.toString(),
-        // "chain_id": this.chain_id,
-        // "data": null,
-        // "memo": this.memo,
-        // "msgs": [msg],
-        // "sequence": this.sequence.toString(),
-        // "source": this.source.toString()
-        // }
 
         $signMsg = (object)(array('account_number' => strval($this->account_number), 'chain_id' => $this->chain_id, 'data' => null, 'memo' => $this->memo, 'msgs' => [$msg], 'sequence' => strval($this->sequence), 'source' => strval($this->source)));
 
@@ -112,12 +103,6 @@ class Transaction {
         var_dump($pubKey);
         echo "signature";
         var_dump(bin2hex($signature));
-        // this.signatures = [{
-        //     pub_key: pubKey,
-        //     signature: signature,
-        //     account_number: this.account_number,
-        //     sequence: this.sequence,
-        // }]
         $this->signatures = array(array('pub_key' => $pubKey, 'signature' => $signature, 'account_number' => $this->account_number, 'sequence' => $this->sequence));
         return $this;
     }
