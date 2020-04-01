@@ -13,6 +13,7 @@ use Binance\StdSignature\PubKey;
 use Binance\StdSignature;
 use Google\Protobuf\Internal\CodedOutputStream;
 use Binance\NewOrder;
+use Binance\CancelOrder;
 /**
  * Creates a new transaction object.
  * @example
@@ -152,6 +153,25 @@ class Transaction {
 
         $msgToSet = $newOrder->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['NewOrderMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode cancel order transaction to hex which is compatible with amino
+     */
+    function serializeCancelOrder() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $cancelOrder = new CancelOrder();
+        $cancelOrder->setRefId($this->msgs[0]->refid);
+        $cancelOrder->setSymbol($this->msgs[0]->symbol);
+        $cancelOrder->setSender(hex2bin($this->msgs[0]->sender));
+
+        $msgToSet = $cancelOrder->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['CancelOrderMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }

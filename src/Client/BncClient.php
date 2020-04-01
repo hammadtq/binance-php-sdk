@@ -153,6 +153,31 @@ class BncClient {
     return ($this->_prepareTransaction($NewOrderMsg, $signMsg, $this->address, $sequence, ""));
   }
 
+  /**
+   * Cancel an order.
+   * @param {String} symbol the market pair
+   * @param {String} refid the order ID of the order to cancel
+   * @param {Number} sequence optional sequence
+   * @return {Promise} resolves with response (success or fail)
+   */
+  function cancelOrder($symbol, $refid, $sequence = null) {
+    $address = new Address();
+    $accCode = $address->DecodeAddress($this->address);
+
+    $CancelOrderMsg = (object)(array('sender' => $accCode, 
+        'symbol' => $symbol,
+        'refid' => $refid,
+        'msgType' => "CancelOrderMsg"
+    ));
+
+    $signMsg = (object)(array('refid' => $refid, 
+        'sender' => $this->address,
+        'symbol' => $symbol
+    ));
+
+    return ($this->_prepareTransaction($CancelOrderMsg, $signMsg, $this->address, $sequence, ""));
+  }
+
     /**
    * Prepare a serialized raw transaction for sending to the blockchain.
    * @param {Object} msg the msg object
@@ -174,11 +199,13 @@ class BncClient {
 
         $tx = new Transaction($options);
         $signedTx = $tx->sign($this->privateKey, $stdSignMsg);
-        
+        echo $msg->msgType;
         if ($msg->msgType == "MsgSend"){
             $txToPost = $signedTx->serializeTransfer();
-        }else if($msg->msgType = "NewOrderType"){
+        }else if($msg->msgType == "NewOrderMsg"){
             $txToPost = $signedTx->serializeNewOrder();
+        }else if($msg->msgType == "CancelOrderMsg"){
+            $txToPost = $signedTx->serializeCancelOrder();
         }
         $httpClient = new HttpClient($this->network);
         $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost);

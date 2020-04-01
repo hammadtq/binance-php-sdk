@@ -109,4 +109,4 @@ echo '<br/>Bech32 Encoded Address: '.$bech32EncodedAddress.'<br/>';
 * Keystore reload
 * Fetching JSON-RPC functions
 * Fetch API functions
-* Placing Transactions: Transfer, NewOrder
+* Transactions: Transfer, NewOrder, CancelOrder
