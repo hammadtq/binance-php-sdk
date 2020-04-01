@@ -40,7 +40,8 @@ Few examples to interact with SDK are below:
 
 ### Keystore reload and getting private key
 
-```$keystoreData = '{paste keystore data here or read from a file';
+```php
+$keystoreData = '{paste keystore data here or read from a file';
 
 $keystore= new Keystore();
 
