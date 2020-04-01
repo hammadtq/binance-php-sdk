@@ -62,10 +62,16 @@ $response = $bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", 
 ```
 
 ### Placing an order
+
 ```php
 $response = $bncClient->NewOrder("BNB_USDT.B-B7C", 1, 0.001, 1, 0, 1); //Symbol, side, price, quantity, sequence, timeinfore
 ```
 
+## Amino Encoding
+
+The SDK uses Google [proto3](https://developers.google.com/protocol-buffers/docs/proto3) generator to support Binance's aminor encoding/decoding. If you ever include new messages to the [proto file](https://github.com/hammadtq/binance-php-sdk/tree/master/proto), run following command to run the generator from the root:
+
+`protoc --proto_path=proto --php_out=./gen proto/dex.proto`
 
 ## Supported Methods
 
