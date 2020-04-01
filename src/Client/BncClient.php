@@ -149,7 +149,7 @@ class BncClient {
     $validateHelper = new ValidateHelper();
     $validateHelper->checkNumber($NewOrderMsg->price, "price");
     $validateHelper->checkNumber($NewOrderMsg->quantity, "quantity");
-    
+
     return ($this->_prepareTransaction($NewOrderMsg, $signMsg, $this->address, $sequence, ""));
   }
 
@@ -174,8 +174,6 @@ class BncClient {
 
         $tx = new Transaction($options);
         $signedTx = $tx->sign($this->privateKey, $stdSignMsg);
-        echo "signedTx";
-        var_dump($signedTx);
         
         if ($msg->msgType == "MsgSend"){
             $txToPost = $signedTx->serializeTransfer();
@@ -184,7 +182,6 @@ class BncClient {
         }
         $httpClient = new HttpClient($this->network);
         $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost);
-        var_dump($result);
         return $result;
     }
 
@@ -211,7 +208,6 @@ class BncClient {
             if (!$address) throw new Exception(`address is falsy: ${address}. invalid private key?`);
             if ($address === $this->address) return $this; // safety
             $this->privateKey = $privateKey;
-            var_dump($privateKey->getHex());
             $this->address = $address;
             // if (!$localOnly) {
             //     // _setPkPromise is used in _sendTransaction for non-await calls

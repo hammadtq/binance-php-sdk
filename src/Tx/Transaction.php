@@ -86,7 +86,6 @@ class Transaction {
 
         $signMsg = (object)(array('account_number' => strval($this->account_number), 'chain_id' => $this->chain_id, 'data' => null, 'memo' => $this->memo, 'msgs' => [$msg], 'sequence' => strval($this->sequence), 'source' => strval($this->source)));
 
-        var_dump($signMsg);
         $encoder = new Encoder();
         return $encoder->convertObjectToSignBytes($signMsg);
     }
@@ -99,10 +98,6 @@ class Transaction {
      **/
     function addSignature($pubKey, $signature) {
         $pubKey = $this->_serializePubKey($pubKey); // => Buffer
-        echo "<br>pubkey<br/>";
-        var_dump($pubKey);
-        echo "signature";
-        var_dump(bin2hex($signature));
         $this->signatures = array(array('pub_key' => $pubKey, 'signature' => $signature, 'account_number' => $this->account_number, 'sequence' => $this->sequence));
         return $this;
     }
@@ -213,11 +208,8 @@ class Transaction {
         }
 
         $signBytes = $this->getSignBytes($msg);
-        echo "sign_bytes<br/>";
-        var_dump($signBytes);
 
         $privateKeyHex = $privateKey->getHex();
-
 
         $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
 
