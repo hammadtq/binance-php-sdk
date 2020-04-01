@@ -31,7 +31,9 @@ secp256k1-php:
     cd ../../
 
  
-The repository was made on Mac OSX using PHP version `7.15.3`. You will also need a version above 7.
+The repository was made on Mac OSX using PHP version `7.15.3`. You will also need a version above 7. It is advised to go with native PHP installation instead of going with XAMPP or WAMPP so to take advantage of secp256k1-php natively. Also, you may need `gmp` extension.
+
+To handle big numbers, the SDK makes use of [brick/math](https://github.com/brick/math) precision library. Please consider using this or another `bcmath` or `gmp` based solutions while dealing with blockchain based numbers.
 
 ## Examples
 
