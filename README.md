@@ -36,6 +36,9 @@ The repository was made on Mac OSX using PHP version `7.15.3`. You will also nee
 To handle big numbers, the SDK makes use of [brick/math](https://github.com/brick/math) precision library. Please consider using this or another `bcmath` or `gmp` based solutions while dealing with blockchain based numbers.
 
 ## Examples
+
+You can find full [example](https://github.com/hammadtq/binance-php-sdk/tree/master/src/Examples) scripts in the src folder.
+
 Few examples to interact with SDK are below:
 
 ### Keystore reload and getting private key
