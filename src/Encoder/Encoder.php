@@ -36,11 +36,7 @@ class Encoder {
     function convertObjectToSignBytes($obj){
       $sorted = $this->sortObject($obj);
       $php_string = json_encode($sorted);
-      //$php_string = str_replace('"', "", $php_string);
-      //echo "<br/>hello2<br/>";
-      //var_dump($php_string);
       return($php_string);
-        //Buffer.from(JSON.stringify(sortObject(obj)));
     }
 
 }
