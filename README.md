@@ -41,7 +41,7 @@ Few examples to interact with SDK are below:
 ### Keystore reload and getting private key
 
 ```php
-$keystoreData = '{paste keystore data here or read from a file';
+$keystoreData = '{paste keystore data here or read from a file}';
 
 $keystore= new Keystore();
 
@@ -56,7 +56,8 @@ Similary, if you want to see the hex of private key, simply use this method:
 
 A typical transfer request will look something like this:
 
-```$bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
+```php
+$bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
 
 $bncClient->initChain();
 
