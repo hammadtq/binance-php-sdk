@@ -11,7 +11,7 @@ The SDK relies on [secp256k1-php](https://github.com/Bit-Wasp/secp256k1-php). Th
 ### To Install:
 
 libsecp256k1:
-    ```
+
     git clone git@github.com:bitcoin-core/secp256k1 && \
     cd secp256k1 &&                                    \
     ./autogen.sh &&                                    \
@@ -19,17 +19,17 @@ libsecp256k1:
      make &&                                           \
      sudo make install &&                              \
      cd ../
-    ```
+
 
 secp256k1-php:
-    ```
+
     git clone git@github.com:Bit-Wasp/secp256k1-php && \
     cd secp256k1-php/secp256k1 &&                      \
     phpize &&                                          \ 
     ./configure --with-secp256k1 &&                    \  
     make && sudo make install &&                       \
     cd ../../
-    ```
+
  
 The repository was made on Mac OSX using PHP version `7.15.3`. You will also need a version above 7.
 
@@ -40,7 +40,7 @@ After cloning the repo, go to examples directory and see the code-style and exam
 ## Supported Methods
 
 * Keypair generation
-* Keystore restore
+* Keystore reload
 * Fetching JSON-RPC functions
 * Fetch API functions
 * Placing Transactions: Transfer, NewOrder
