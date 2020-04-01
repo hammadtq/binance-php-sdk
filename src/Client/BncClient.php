@@ -178,6 +178,60 @@ class BncClient {
     return ($this->_prepareTransaction($CancelOrderMsg, $signMsg, $this->address, $sequence, ""));
   }
 
+  /**
+   * Freeze a token.
+   * @param {String} symbol the market pair
+   * @param {String} refid the order ID of the order to cancel
+   * @param {Number} sequence optional sequence
+   * @return {Promise} resolves with response (success or fail)
+   */
+  function tokenFreeze($symbol, $amount, $sequence = null) {
+    $address = new Address();
+    $accCode = $address->DecodeAddress($this->address);
+
+    $amount = strval(BigDecimal::of($amount)->multipliedBy(BASENUMBER));
+
+    $TokenFreeze = (object)(array('from' => $accCode, 
+        'symbol' => $symbol,
+        'amount' => (int)$amount,
+        'msgType' => "FreezeMsg"
+    ));
+
+    $signMsg = (object)(array('amount' => (int)$amount, 
+        'from' => $this->address,
+        'symbol' => $symbol
+    ));
+
+    return ($this->_prepareTransaction($TokenFreeze, $signMsg, $this->address, $sequence, ""));
+  }
+
+  /**
+   * UnFreeze a token.
+   * @param {String} symbol the market pair
+   * @param {String} refid the order ID of the order to cancel
+   * @param {Number} sequence optional sequence
+   * @return {Promise} resolves with response (success or fail)
+   */
+  function tokenUnFreeze($symbol, $amount, $sequence = null) {
+    $address = new Address();
+    $accCode = $address->DecodeAddress($this->address);
+
+    $amount = strval(BigDecimal::of($amount)->multipliedBy(BASENUMBER));
+
+    $TokenUnFreeze = (object)(array('from' => $accCode, 
+        'symbol' => $symbol,
+        'amount' => (int)$amount,
+        'msgType' => "UnFreezeMsg"
+    ));
+
+    $signMsg = (object)(array('amount' => (int)$amount, 
+        'from' => $this->address,
+        'symbol' => $symbol
+    ));
+
+    return ($this->_prepareTransaction($TokenUnFreeze, $signMsg, $this->address, $sequence, ""));
+  }
+
     /**
    * Prepare a serialized raw transaction for sending to the blockchain.
    * @param {Object} msg the msg object
@@ -199,13 +253,17 @@ class BncClient {
 
         $tx = new Transaction($options);
         $signedTx = $tx->sign($this->privateKey, $stdSignMsg);
-        echo $msg->msgType;
+        
         if ($msg->msgType == "MsgSend"){
             $txToPost = $signedTx->serializeTransfer();
         }else if($msg->msgType == "NewOrderMsg"){
             $txToPost = $signedTx->serializeNewOrder();
         }else if($msg->msgType == "CancelOrderMsg"){
             $txToPost = $signedTx->serializeCancelOrder();
+        }else if($msg->msgType == "FreezeMsg"){
+            $txToPost = $signedTx->serializeTokenFreeze();
+        }else if($msg->msgType == "UnFreezeMsg"){
+            $txToPost = $signedTx->serializeTokenUnFreeze();
         }
         $httpClient = new HttpClient($this->network);
         $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost);

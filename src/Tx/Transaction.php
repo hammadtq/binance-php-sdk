@@ -14,6 +14,8 @@ use Binance\StdSignature;
 use Google\Protobuf\Internal\CodedOutputStream;
 use Binance\NewOrder;
 use Binance\CancelOrder;
+use Binance\TokenFreeze;
+use Binance\TokenUnFreeze;
 /**
  * Creates a new transaction object.
  * @example
@@ -172,6 +174,44 @@ class Transaction {
 
         $msgToSet = $cancelOrder->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['CancelOrderMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode freeze transaction to hex which is compatible with amino
+     */
+    function serializeTokenFreeze() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $tokenFreeze = new TokenFreeze();
+        $tokenFreeze->setAmount($this->msgs[0]->amount);
+        $tokenFreeze->setFrom(hex2bin($this->msgs[0]->from));
+        $tokenFreeze->setSymbol($this->msgs[0]->symbol);
+
+        $msgToSet = $tokenFreeze->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['FreezeMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode unfreeze transaction to hex which is compatible with amino
+     */
+    function serializeTokenUnFreeze() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $tokenUnFreeze = new TokenUnFreeze();
+        $tokenUnFreeze->setAmount($this->msgs[0]->amount);
+        $tokenUnFreeze->setFrom(hex2bin($this->msgs[0]->from));
+        $tokenUnFreeze->setSymbol($this->msgs[0]->symbol);
+
+        $msgToSet = $tokenUnFreeze->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['UnfreezeMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }

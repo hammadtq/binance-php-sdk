@@ -1,8 +1,8 @@
 <?php
 
-namespace Binance\Examples;
+namespace Binance\Examples\Transactions;
 
-require '../../vendor/autoload.php';
+require '../../../vendor/autoload.php';
 
 use Binance\Crypto\Keystore;
 use Binance\Client\BncClient;
@@ -16,6 +16,6 @@ $bncClient->initChain();
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 $bncClient->setPrivateKey($privateKey);
 
-$response = $bncClient->NewOrder("BNB_USDT.B-B7C", 1, 0.001, 1, 0, 1);
+$response = $bncClient->TokenUnFreeze("BNB", 0.01);
 var_dump($response);
 ?>

@@ -1,8 +1,8 @@
 <?php
 
-namespace Binance\Examples;
+namespace Binance\Examples\Transactions;
 
-require '../../vendor/autoload.php';
+require '../../../vendor/autoload.php';
 
 use Binance\Crypto\Keystore;
 use Binance\Client\BncClient;
@@ -16,7 +16,6 @@ $bncClient->initChain();
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 $bncClient->setPrivateKey($privateKey);
 
-$response = $bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1hgm0p7khfk85zpz5v0j8wnej3a90w709zzlffd", 0.001, "BNB", "3423423");
-
+$response = $bncClient->CancelOrder("BNB_USDT.B-B7C", "200810EF2C56EA22E875831CB900F9007548857A-95");
 var_dump($response);
 ?>
