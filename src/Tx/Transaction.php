@@ -16,6 +16,8 @@ use Binance\NewOrder;
 use Binance\CancelOrder;
 use Binance\TokenFreeze;
 use Binance\TokenUnFreeze;
+use Binance\Issue;
+use Binance\Burn;
 /**
  * Creates a new transaction object.
  * @example
@@ -212,6 +214,66 @@ class Transaction {
 
         $msgToSet = $tokenUnFreeze->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['UnfreezeMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode issue token transaction to hex which is compatible with amino
+     */
+    function serializeIssueToken() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $issue = new Issue();
+        $issue->setFrom(bin2hex($this->msgs[0]->from));
+        $issue->setName($this->msgs[0]->name);
+        $issue->setSymbol($this->msgs[0]->symbol);
+        $issue->setTotalSupply($this->msgs[0]->total_supply);
+        $issue->setMintable($this->msgs[0]->mintable);
+
+        $msgToSet = $issue->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['IssueMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode burn transaction to hex which is compatible with amino
+     */
+    function serializeBurnToken() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $burn = new Burn();
+        $burn->setFrom(bin2hex($this->msgs[0]->from));
+        $burn->setSymbol($this->msgs[0]->symbol);
+        $burn->setAmount($this->msgs[0]->amount);
+
+        $msgToSet = $burn->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['BurnMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+
+    /**
+     * encode mint transaction to hex which is compatible with amino
+     */
+    function serializeMintToken() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $mint = new Mint();
+        $mint->setFrom(bin2hex($this->msgs[0]->from));
+        $mint->setSymbol($this->msgs[0]->symbol);
+        $mint->setAmount($this->msgs[0]->amount);
+
+        $msgToSet = $mint->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['MintMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }

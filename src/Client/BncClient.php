@@ -14,6 +14,7 @@ use Binance\Client\HttpClient;
 use Binance\Exception;
 
 define("BASENUMBER", pow(10,8));
+define("MAXTOTALSUPPLY", 9000000000000000000);
 
 class BncClient {
 
@@ -232,6 +233,114 @@ class BncClient {
     return ($this->_prepareTransaction($TokenUnFreeze, $signMsg, $this->address, $sequence, ""));
   }
 
+  /**
+   * create a new asset on Binance Chain
+   * @param {String} - senderAddress
+   * @param {String} - tokenName
+   * @param {String} - symbol
+   * @param {Number} - totalSupply
+   * @param {Boolean} - mintable
+   * @returns {Promise} resolves with response (success or fail)
+   */
+  function issueToken($senderAddress, $tokenName, $symbol, $totalSupply = 0, $mintable = false) {
+    if (!$senderAddress) {
+        throw new Exception("sender address cannot be empty");
+    }
+
+    if (strlen($tokenName) > 32) {
+      throw new Exception("token name is limited to 32 characters");
+    }
+
+    if ($totalSupply <= 0 || $totalSupply > MAXTOTALSUPPLY) {
+      throw new Exception("invalid supply amount");
+    }
+
+    $totalSupply = strval(BigDecimal::of($totalSupply));
+    $totalSupply = strval(BigDecimal::of($totalSupply)->multipliedBy(BASENUMBER));
+
+    $address = new Address();
+    $accCode = $address->DecodeAddress($senderAddress);
+
+    $issueMsg = (object)(array('from' => $accCode, 
+        'name' => $tokenName,
+        'symbol' => $symbol,
+        'total_supply' => (int)$totalSupply,
+        'mintable' => $mintable,
+        'msgType' => "IssueMsg"
+    ));
+
+    $signIssueMsg = (object)(array('from' => $accCode, 
+        'name' => $tokenName,
+        'symbol' => $symbol,
+        'total_supply' => (int)$totalSupply,
+        'mintable' => $mintable
+    ));
+
+    return ($this->_prepareTransaction($issueMsg, $signIssueMsg, $senderAddress));
+  }
+
+  /**
+   * burn some amount of token
+   * @param {String} fromAddress
+   * @param {String} symbol
+   * @param {Number} amount
+   * @returns {Promise}  resolves with response (success or fail)
+   */
+  function burnToken($fromAddress, $symbol, $amount) {
+
+    $amount = strval(BigDecimal::of($amount)->multipliedBy(BASENUMBER));
+
+    $address = new Address();
+    $accCode = $address->DecodeAddress($fromAddress);
+
+    $burnMsg = (object)(array('from' => $accCode, 
+        'symbol' => $symbol,
+        'amount' => (int)$amount,
+        'msgType' => "BurnMsg"
+    ));
+
+    $burnSignMsg = (object)(array(
+        'amount' => (int)$amount,
+        'from' => $accCode, 
+        'symbol' => $symbol
+    ));
+
+    return ($this->_prepareTransaction($burnMsg, $burnSignMsg, $fromAddress));
+  }
+
+  /**
+   * mint tokens for an existing token
+   * @param {String} fromAddress
+   * @param {String} symbol
+   * @param {Number} amount
+   * @returns {Promise}  resolves with response (success or fail)
+   */
+  function mintToken($fromAddress, $symbol, $amount) {
+
+    if ($amount <= 0 || $amount > MAXTOTALSUPPLY) {
+      throw new Exception("invalid amount");
+    }
+
+    $amount = strval(BigDecimal::of($amount)->multipliedBy(BASENUMBER));
+
+    $address = new Address();
+    $accCode = $address->DecodeAddress($fromAddress);
+
+    $mintMsg = (object)(array('from' => $accCode, 
+        'symbol' => $symbol,
+        'amount' => (int)$amount,
+        'msgType' => "MintMsg"
+    ));
+
+    $mintSignMsg = (object)(array(
+        'amount' => (int)$amount,
+        'from' => $accCode, 
+        'symbol' => $symbol
+    ));
+
+    return ($this->_prepareTransaction($mintMsg, $mintSignMsg, $fromAddress));
+  }
+
     /**
    * Prepare a serialized raw transaction for sending to the blockchain.
    * @param {Object} msg the msg object
@@ -264,6 +373,12 @@ class BncClient {
             $txToPost = $signedTx->serializeTokenFreeze();
         }else if($msg->msgType == "UnFreezeMsg"){
             $txToPost = $signedTx->serializeTokenUnFreeze();
+        }else if($msg->msgType == "IssueMsg"){
+            $txToPost = $signedTx->serializeIssueToken();
+        }else if($msg->msgType == "BurnMsg"){
+            $txToPost = $signedTx->serializeBurnToken();
+        }else if($msg->msgType == "MintMsg"){
+            $txToPost = $signedTx->serializeMintToken();
         }
         $httpClient = new HttpClient($this->network);
         $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost);
