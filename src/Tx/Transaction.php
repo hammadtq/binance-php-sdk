@@ -18,6 +18,7 @@ use Binance\TokenFreeze;
 use Binance\TokenUnFreeze;
 use Binance\Issue;
 use Binance\Burn;
+use Binance\SubmitProposal;
 /**
  * Creates a new transaction object.
  * @example
@@ -274,6 +275,210 @@ class Transaction {
 
         $msgToSet = $mint->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['MintMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode submitproposal transaction to hex which is compatible with amino
+     */
+    function serializeSubmitProposal() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $submit = new SubmitProposal();
+        $submit->setTitle($this->msgs[0]->title);
+        $submit->setDescription($this->msgs[0]->description);
+        $submit->setProposalType($this->msgs[0]->proposal_type);
+        $submit->setProposar(bin2hex($this->msgs[0]->proposar));
+        $submit->setCoins($this->msgs[0]->initial_deposit);
+        $submit->setVotingPeriod($this->msgs[0]->voting_period);
+
+        $msgToSet = $submit->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['MsgSubmitProposal'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode serialize deposit transaction to hex which is compatible with amino
+     */
+    function serializeDeposit() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $deposit = new Deposit();
+        $deposit->setProposalID($this->msgs[0]->proposal_id);
+        $deposit->setDepositor(bin2hex($this->msgs[0]->depositor));
+        $deposit->setCoins($this->msgs[0]->amount);
+
+        $msgToSet = $deposit->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['MsgDeposit'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+
+    /**
+     * encode serialize vote transaction to hex which is compatible with amino
+     */
+    function serializeVote() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $vote = new Vote();
+        $vote->setProposalID($this->msgs[0]->proposal_id);
+        $vote->setVoter(bin2hex($this->msgs[0]->voter));
+        $vote->setOption($this->msgs[0]->option);
+
+        $msgToSet = $vote->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['MsgVote'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode serialize htlt transaction to hex which is compatible with amino
+     */
+    function serializeHTLT() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $htlt = new HashTimerLockTransferMsg();
+        $htlt->setFrom(bin2hex($this->msgs[0]->from));
+        $htlt->setTo(bin2hex($this->msgs[0]->to));
+        $htlt->setRecipientOtherChain($this->msgs[0]->recipient_other_chain);
+        $htlt->setSenderOtherChain($this->msgs[0]->sender_other_chain);
+        $htlt->setRandomNumberHash($this->msgs[0]->random_number_hash);
+        $htlt->setTimeStamp($this->msgs[0]->timestamp);
+        $htlt->setAmount($this->msgs[0]->amount);
+        $htlt->setExpectedIncom($this->msgs[0]->expected_income);
+        $htlt->setHeightSpan($this->msgs[0]->height_span);
+        $htlt->setCrossChain($this->msgs[0]->cross_chain);
+
+
+        $msgToSet = $htlt->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['HTLTMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode serialize deposit htlt transaction to hex which is compatible with amino
+     */
+    function serializeDepositHTLT() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $deposit = new DepositHashTimerLockTransferMsg();
+        $deposit->setFrom(bin2hex($this->msgs[0]->from));
+        $deposit->setAmount($this->msgs[0]->amount);
+        $deposit->setSwapId(bin2hex($this->msgs[0]->swap_id));
+
+
+        $msgToSet = $deposit->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['DepositHTLTMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode serialize deposit htlt transaction to hex which is compatible with amino
+     */
+    function serializeClaimHTLT() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $claim = new ClaimHashTimerLockTransferMsg();
+        $claim->setFrom(bin2hex($this->msgs[0]->from));
+        $claim->setSwapId(bin2hex($this->msgs[0]->swap_id));
+        $claim->setRandomNumber(bin2hex($this->msgs[0]->random_number));
+
+
+        $msgToSet = $claim->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['ClaimHTLTMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode serialize deposit htlt transaction to hex which is compatible with amino
+     */
+    function serializeRefundHTLT() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $refund = new RefundHashTimerLockTransferMsg();
+        $refund->setFrom(bin2hex($this->msgs[0]->from));
+        $refund->setSwapId(bin2hex($this->msgs[0]->swap_id));
+
+        $msgToSet = $refund->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['RefundHTLTMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode time lock transaction to hex which is compatible with amino
+     */
+    function serializeTimeLock() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $lock = new TimeLock();
+        $lock->setFrom(bin2hex($this->msgs[0]->from));
+        $lock->setDescription($this->msgs[0]->description);
+        $lock->setAmount($this->msgs[0]->amount);
+        $lock->setLockTime($this->msgs[0]->lock_time);
+
+        $msgToSet = $lock->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['TimeLockMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode time relock transaction to hex which is compatible with amino
+     */
+    function serializeTimeRelock() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $relock = new TimeReLock();
+        $relock->setFrom(bin2hex($this->msgs[0]->from));
+        $relock->setDescription($this->msgs[0]->description);
+        $relock->setAmount($this->msgs[0]->amount);
+        $relock->setLockTime($this->msgs[0]->lock_time);
+
+        $msgToSet = $relock->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['TimeRelockMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode time unlock transaction to hex which is compatible with amino
+     */
+    function serializeTimeUnlock() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $unlock = new TimeUnLock();
+        $unlock->setFrom(bin2hex($this->msgs[0]->from));
+        $unlock->setId($this->msgs[0]->time_lock_id);
+
+        $msgToSet = $unlock->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['TimeUnlockMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }

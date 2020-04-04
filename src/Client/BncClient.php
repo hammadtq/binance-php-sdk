@@ -269,7 +269,7 @@ class BncClient {
         'msgType' => "IssueMsg"
     ));
 
-    $signIssueMsg = (object)(array('from' => $accCode, 
+    $signIssueMsg = (object)(array('from' => $senderAddress, 
         'name' => $tokenName,
         'symbol' => $symbol,
         'total_supply' => (int)$totalSupply,
@@ -301,7 +301,7 @@ class BncClient {
 
     $burnSignMsg = (object)(array(
         'amount' => (int)$amount,
-        'from' => $accCode, 
+        'from' => $fromAddress, 
         'symbol' => $symbol
     ));
 
@@ -334,7 +334,7 @@ class BncClient {
 
     $mintSignMsg = (object)(array(
         'amount' => (int)$amount,
-        'from' => $accCode, 
+        'from' => $fromAddress, 
         'symbol' => $symbol
     ));
 
@@ -379,6 +379,26 @@ class BncClient {
             $txToPost = $signedTx->serializeBurnToken();
         }else if($msg->msgType == "MintMsg"){
             $txToPost = $signedTx->serializeMintToken();
+        }else if($msg->msgType == "MsgSubmitProposal"){
+            $txToPost = $signedTx->serializeSubmitProposal();
+        }else if($msg->msgType == "MsgDeposit"){
+            $txToPost = $signedTx->serializeDeposit();
+        }else if($msg->msgType == "MsgVote"){
+            $txToPost = $signedTx->serializeVote();
+        }else if($msg->msgType == "HTLTMsg"){
+            $txToPost = $signedTx->serializeHTLT();
+        }else if($msg->msgType == "DepositHTLTMsg"){
+            $txToPost = $signedTx->serializeDepositHTLT();
+        }else if($msg->msgType == "ClaimHTLTMsg"){
+            $txToPost = $signedTx->serializeClaimHTLT();
+        }else if($msg->msgType == "RefundHTLTMsg"){
+            $txToPost = $signedTx->serializeRefundHTLT();
+        }else if($msg->msgType == "TimeLockMsg"){
+            $txToPost = $signedTx->serializeTimeLock();
+        }else if($msg->msgType == "TimeRelockMsg"){
+            $txToPost = $signedTx->serializeTimeRelock();
+        }else if($msg->msgType == "TimeUnlockMsg"){
+            $txToPost = $signedTx->serializeTimeUnlock();
         }
         $httpClient = new HttpClient($this->network);
         $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost);

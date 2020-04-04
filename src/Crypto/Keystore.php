@@ -27,6 +27,19 @@ class Keystore
      */
     private $transactionSigner;
 
+
+    static private $context;
+
+
+    public static function getContext()
+    {
+        if (self::$context == null) {
+            self::$context = \secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+        }
+
+        return self::$context;
+    }
+
     /**
      * @param string $data
      * @param string $passphrase
@@ -134,7 +147,7 @@ class Keystore
      * @return Byte
      * @throws Exception
      */
-    private function createPublicKey(Byte $privateKey): Byte
+    public function createPublicKey(Byte $privateKey): Byte
     {
         $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
         /** @var resource $publicKey */
@@ -205,11 +218,26 @@ class Keystore
         return $this->transactionSigner->sign($transaction, $this->getPrivateKey());
     }
 
-    function privateKeyToPublicKey($privateKey){
+
+    public function createPrivateKey()
+    {
+        do {
+            $key = \openssl_random_pseudo_bytes(32);
+        } while (secp256k1_ec_seckey_verify(self::getContext(), $key) == 0);
+        return $key;
+    }
+
+    public function privateKeyToPublicKey($privateKey){
         return($this->createPublicKey($privateKey));
     } 
 
-    function publicKeyToAddress($publicKey, $addrPrefix){
+    public function publicKeyToAddress($publicKey, $addrPrefix){
         return($this->parseAddress($publicKey, $addrPrefix));
+    }
+
+    function generateKeyPair(){
+        $privateKey = Byte::init($this->createPrivateKey());
+        $publicKey = $this->createPublicKey($privateKey);
+        var_dump($publicKey);
     }
 }

@@ -30,7 +30,11 @@ secp256k1-php:
     make && sudo make install &&                       \
     cd ../../
 
- 
+## (Optional) - Enable extension by default!
+If you're a heavy user, you can add this line to your php.ini files for php-cli, apache2, or php-fpm.
+
+> extension=secp256k1.so
+
 The repository was made on Mac OSX using PHP version `7.15.3`. You will also need a version above 7. It is advised to go with native PHP installation instead of going with XAMPP or WAMPP so to take advantage of secp256k1-php natively. Also, you may need `gmp` extension.
 
 To handle big numbers, the SDK makes use of [brick/math](https://github.com/brick/math) precision library. Please consider using this or another `bcmath` or `gmp` based solutions while dealing with blockchain based numbers.
