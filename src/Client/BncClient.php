@@ -12,6 +12,7 @@ use Binance\Client\AbciRequest;
 use Binance\Tx\Transaction;
 use Binance\Client\HttpClient;
 use Binance\Exception;
+use Binance\Types\Byte;
 
 define("BASENUMBER", pow(10,8));
 define("MAXTOTALSUPPLY", 9000000000000000000);
@@ -421,24 +422,15 @@ class BncClient {
      * @return {Promise}
      */
     function setPrivateKey($privateKey, $localOnly = false) {
-        if ($privateKey !== $this->privateKey) {
+        $privateKeyBytes = Byte::init(hex2bin($privateKey));
+        if ($privateKeyBytes !== $this->privateKey) {
             $keystore = new Keystore();
-            $publicKey = $keystore->privateKeyToPublicKey($privateKey);
+            $publicKey = $keystore->privateKeyToPublicKey($privateKeyBytes);
             $address = $keystore->publicKeyToAddress($publicKey, $this->addressPrefix);
             if (!$address) throw new Exception(`address is falsy: ${address}. invalid private key?`);
             if ($address === $this->address) return $this; // safety
-            $this->privateKey = $privateKey;
+            $this->privateKey = $privateKeyBytes;
             $this->address = $address;
-            // if (!$localOnly) {
-            //     // _setPkPromise is used in _sendTransaction for non-await calls
-            //     try {
-            //         $promise = $this->_setPkPromise = this._httpClient.request("get", `${api.getAccount}/${address}`);
-            //         $data = await promise;
-            //         $this->account_number = data.result.account_number;
-            //     } catch (e) {
-            //         throw new Error(`unable to query the address on the blockchain. try sending it some funds first: ${address}`)
-            //     }
-            // }
         }
         return $this;
     }

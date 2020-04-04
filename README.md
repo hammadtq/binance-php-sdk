@@ -82,29 +82,15 @@ The SDK uses Google [proto3](https://developers.google.com/protocol-buffers/docs
 
 ## Key Generation
 
-Key generation is currently supported through [phpecc](https://github.com/phpecc/phpecc) that is a separate library from secp256k1-php. The functionality will be shifted to secp256k1-php support as well. 
+Key generation is supported via secp256k1-php library as well. 
 
 Once you generate an address, make sure to send an amount on it as the Binance DEX will not make an account unless a transaction is received on an address.
 
 ```php
-$adapter = EccFactory::getAdapter();
-$generator = EccFactory::getSecgCurves()->generator256k1();
-$privateKey = $generator->createPrivateKey();
-$publicKey = $privateKey->getPublicKey();
-$point = $privateKey->getPoint();
-
-$compressingSerializer = new CompressedPointSerializer($adapter);
-$compressed = $compressingSerializer->serialize($publicKey->getPoint());
-
-$sha256 = hash('sha256', $compressed);
-$ripemd60 = hash('ripemd160', $sha256);
-$chars = array_values(unpack('C*', $ripemd60));
-
-$bech32 = new Bech32;
-$convertedBits = $bech32 -> convertBits(array_slice($chars, 1), count($chars) - 1, 8, 5, true);
-$bech32EncodedAddress = $bech32 -> encode("testbnb", $convertedBits);
-
-echo '<br/>Bech32 Encoded Address: '.$bech32EncodedAddress.'<br/>';
+$keystore = new Keystore();
+$privateKey = Byte::init($keystore->createPrivateKey());
+$publicKey = $keystore->createPublicKey($privateKey);
+$address = $keystore->publicKeyToAddress($publicKey, 'tbnb');
 ```
 
 ## Supported Methods
