@@ -16,6 +16,9 @@
 - 'DepositHTLTMsg'
 - 'ClaimHTLTMsg'
 - 'RefundHTLTMsg'
+- 'TimeLockMsg'
+- 'TimeUnlockMsg'
+- 'TimeRelockMsg'
 
 ## RPC Get Methods
 - getAccount
@@ -26,9 +29,6 @@
 - 'MsgSubmitProposal' (test pending)
 - 'MsgDeposit' (test pending)
 - 'MsgVote' (test pending)
-- 'TimeLockMsg' (test pending)
-- 'TimeUnlockMsg' (test pending)
-- 'TimeRelockMsg' (test pending)
 - 'IssueMsg' (test pending)
 - 'BurnMsg' (test pending)
 - 'MintMsg' (test pending)

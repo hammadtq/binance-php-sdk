@@ -101,4 +101,4 @@ $address = $keystore->publicKeyToAddress($publicKey, 'tbnb');
 * Keystore reload
 * Fetching JSON-RPC functions
 * Fetch API functions
-* Transactions: Transfer, NewOrder, CancelOrder, TokenFreeze, TokenUnFreeze, Issue, Mint, Burn, HTLT, DepositHTLT, ClaimHTLT, RefundHTLT
+* Transactions: Transfer, NewOrder, CancelOrder, TokenFreeze, TokenUnFreeze, Issue, Mint, Burn, HTLT, DepositHTLT, ClaimHTLT, RefundHTLT, TimeLock, TimeRelock, TimeUnlock
