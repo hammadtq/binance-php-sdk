@@ -21,6 +21,7 @@ use Binance\Burn;
 use Binance\SubmitProposal;
 use Binance\HashTimerLockTransferMsg;
 use Binance\Token;
+use Binance\DepositHashTimerLockMsg;
 /**
  * Creates a new transaction object.
  * @example
@@ -358,7 +359,6 @@ class Transaction {
         $htlt->setRandomNumberHash(hex2bin($this->msgs[0]->random_number_hash));
         $htlt->setTimeStamp($this->msgs[0]->timestamp);
         $token = new Token();
-        var_dump($this->msgs[0]);
         $token->setDenom($this->msgs[0]->amount["denom"]); 
         $token->setAmount($this->msgs[0]->amount["amount"]);
         $htlt->setAmount([$token]);
@@ -385,15 +385,22 @@ class Transaction {
             throw new Exception("need signature");
         }
 
-        $deposit = new DepositHashTimerLockTransferMsg();
-        $deposit->setFrom(bin2hex($this->msgs[0]->from));
-        $deposit->setAmount($this->msgs[0]->amount);
-        $deposit->setSwapId(bin2hex($this->msgs[0]->swap_id));
+        $deposit = new DepositHashTimerLockMsg();
+        $deposit->setFrom(hex2bin($this->msgs[0]->from));
+        $deposit->setSwapId(hex2bin($this->msgs[0]->swap_id));
+        $token = new Token();
+        $token->setDenom($this->msgs[0]->amount["denom"]); 
+        $token->setAmount($this->msgs[0]->amount["amount"]);
+        $deposit->setAmount([$token]);
+        
 
 
         $msgToSet = $deposit->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['DepositHTLTMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
+        echo "signature:";
+        var_dump(bin2hex($signatureToSet));
+        var_dump(bin2hex($msgToSetPrefixed));
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }
 

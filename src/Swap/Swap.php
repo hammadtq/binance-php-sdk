@@ -27,8 +27,6 @@ class Swap {
    * @returns {Promise}  resolves with response (success or fail)
    */
   function HTLT($from, $recipient, $recipientOtherChain, $senderOtherChain, $randomNumberHash, $timestamp, $amount, $expectedIncome, $heightSpan, $crossChain) {
-    
-    var_dump($amount);
 
     $address = new Address();
     $fromCode = $address->DecodeAddress($from);
@@ -71,24 +69,21 @@ class Swap {
    */
   function depositHTLT($from, $swapID, $amount) {
 
-    checkCoins($amount);
-
     $address = new Address();
     $fromCode = $address->DecodeAddress($from);
 
-    $depositHTLTMsg = (object)(array('from' => $fromCode, 
-        'to' => $recipient, 
+    $depositHTLTMsg = (object)(array('from' => $fromCode,
         'amount' => $amount,
-        'swap_id' => bin2hex(swapID),
+        'swap_id' => $swapID,
         'msgType' => 'DepositHTLTMsg',
     ));
 
     $signDepositHTLTMsg = (object)(array('from' => $from, 
-        'amount' => $amount,
-        'swap_id' => swapID
+        'swap_id' => $swapID,
+        'amount' => array($amount)
     ));
 
-    return ($this->$_bncClient->_prepareTransaction($depositHTLTMsg, $signDepositHTLTMsg, $from));
+    return ($this->_bncClient->_prepareTransaction($depositHTLTMsg, $signDepositHTLTMsg, $from));
   }
 
   /**

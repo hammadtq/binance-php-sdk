@@ -98,7 +98,7 @@ class BncClient {
    * @param {Number} timeinforce (1-GTC(Good Till Expire), 3-IOC(Immediate or Cancel))
    * @return {Promise} resolves with response (success or fail)
    */
-  function NewOrder($symbol, $side, $price, $quantity, $sequence = null, $timeinforce = 1) {
+  function newOrder($symbol, $side, $price, $quantity, $sequence = null, $timeinforce = 1) {
     if (!$this->address) {
       throw new Exception("address should not be falsy");
     }

@@ -12,6 +12,6 @@ $bncClient->initChain();
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 $bncClient->setPrivateKey($privateKey);
 
-$response = $bncClient->NewOrder("BNB_USDT.B-B7C", 1, 0.001, 1, 0, 1);
+$response = $bncClient->newOrder("BNB_USDT.B-B7C", 1, 0.001, 1, 0, 1);
 var_dump($response);
 ?>
