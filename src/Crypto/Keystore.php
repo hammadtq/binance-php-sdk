@@ -117,18 +117,6 @@ class Keystore
     }
 
     /**
-     * @param string $key
-     * @param string $ciphertext
-     * @param string $mac
-     * @return bool
-     * @throws Exception
-     */
-    private function validateDerivedKey(string $key, string $ciphertext, string $mac)
-    {
-        return Keccak::hash(pack('H*', substr($key, 32, 32).$ciphertext)) === $mac;
-    }
-
-    /**
      * @param string $ciphertext
      * @param string $key
      * @param string $cipher
@@ -227,6 +215,15 @@ class Keystore
         return $key;
     }
 
+    public function createPrivateKeyWithSeed($seed)
+    {
+        do {
+            $key = $seed;
+            var_dump(strlen($key));
+        } while (secp256k1_ec_seckey_verify(self::getContext(), $key) == 0);
+        return $key;
+    }
+
     public function privateKeyToPublicKey($privateKey){
         return($this->createPublicKey($privateKey));
     } 
@@ -235,9 +232,4 @@ class Keystore
         return($this->parseAddress($publicKey, $addrPrefix));
     }
 
-    function generateKeyPair(){
-        $privateKey = Byte::init($this->createPrivateKey());
-        $publicKey = $this->createPublicKey($privateKey);
-        var_dump($publicKey);
-    }
 }

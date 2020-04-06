@@ -28,7 +28,7 @@ class Swap {
    */
   function HTLT($from, $recipient, $recipientOtherChain, $senderOtherChain, $randomNumberHash, $timestamp, $amount, $expectedIncome, $heightSpan, $crossChain) {
     
-    checkCoins($amount);
+    var_dump($amount);
 
     $address = new Address();
     $fromCode = $address->DecodeAddress($from);
@@ -38,7 +38,7 @@ class Swap {
         'to' => $recipientCode, 
         'recipient_other_chain' => $recipientOtherChain,
         'sender_other_chain' => $senderOtherChain,
-        'random_number_hash' => bin2hex($randomNumberHash),
+        'random_number_hash' => $randomNumberHash,
         'timestamp' => $timestamp,
         'amount' => $amount,
         'expected_income' => $expectedIncome,
@@ -51,15 +51,15 @@ class Swap {
         'to' => $recipient, 
         'recipient_other_chain' => $recipientOtherChain,
         'sender_other_chain' => $senderOtherChain,
-        'random_number_hash' => bin2hex($randomNumberHash),
+        'random_number_hash' => $randomNumberHash,
         'timestamp' => $timestamp,
-        'amount' => $amount,
+        'amount' => array($amount),
         'expected_income' => $expectedIncome,
         'height_span' => $heightSpan,
         'cross_chain' => $crossChain
     ));
 
-    return ($this->$_bncClient->_prepareTransaction($htltMsg, $signHTLTMsg, $from));
+    return ($this->_bncClient->_prepareTransaction($htltMsg, $signHTLTMsg, $from));
   }
 
   /**

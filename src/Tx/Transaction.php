@@ -19,6 +19,8 @@ use Binance\TokenUnFreeze;
 use Binance\Issue;
 use Binance\Burn;
 use Binance\SubmitProposal;
+use Binance\HashTimerLockTransferMsg;
+use Binance\Token;
 /**
  * Creates a new transaction object.
  * @example
@@ -349,21 +351,29 @@ class Transaction {
         }
 
         $htlt = new HashTimerLockTransferMsg();
-        $htlt->setFrom(bin2hex($this->msgs[0]->from));
-        $htlt->setTo(bin2hex($this->msgs[0]->to));
-        $htlt->setRecipientOtherChain($this->msgs[0]->recipient_other_chain);
-        $htlt->setSenderOtherChain($this->msgs[0]->sender_other_chain);
-        $htlt->setRandomNumberHash($this->msgs[0]->random_number_hash);
+        $htlt->setFrom(hex2bin($this->msgs[0]->from));
+        $htlt->setTo(hex2bin($this->msgs[0]->to));
+        $htlt->setRecipientOtherChain(hex2bin($this->msgs[0]->recipient_other_chain));
+        $htlt->setSenderOtherChain(hex2bin($this->msgs[0]->sender_other_chain));
+        $htlt->setRandomNumberHash(hex2bin($this->msgs[0]->random_number_hash));
         $htlt->setTimeStamp($this->msgs[0]->timestamp);
-        $htlt->setAmount($this->msgs[0]->amount);
-        $htlt->setExpectedIncom($this->msgs[0]->expected_income);
+        $token = new Token();
+        var_dump($this->msgs[0]);
+        $token->setDenom($this->msgs[0]->amount["denom"]); 
+        $token->setAmount($this->msgs[0]->amount["amount"]);
+        $htlt->setAmount([$token]);
+        $htlt->setExpectedIncome($this->msgs[0]->expected_income);
         $htlt->setHeightSpan($this->msgs[0]->height_span);
         $htlt->setCrossChain($this->msgs[0]->cross_chain);
 
 
         $msgToSet = $htlt->serializeToString();
+        var_dump(bin2hex($msgToSet));
         $msgToSetPrefixed = hex2bin($this->typePrefixes['HTLTMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
+        echo "signature:";
+        var_dump(bin2hex($signatureToSet));
+        var_dump(bin2hex($msgToSetPrefixed));
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }
 
@@ -509,6 +519,7 @@ class Transaction {
         $stdTx->setData("");
        
         $stdTxBytes = $stdTx->serializeToString();
+        var_dump(bin2hex($stdTxBytes));
 
         $txWithPrefix = $this->typePrefixes['StdTx'].bin2hex($stdTxBytes);
         $lengthPrefix = strlen(pack('H*', $txWithPrefix));

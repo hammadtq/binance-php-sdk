@@ -12,7 +12,7 @@ $bncClient->initChain();
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 $bncClient->setPrivateKey($privateKey);
 
-$response = $bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1mmehrux6snnuq6cq2gq4396m9lycwzy700l60a", 0.01, "BNB", "3423423");
+$response = $bncClient->transfer("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1y4vjqmj8qxcwggued8ualx8pdt0tr50qflr34z", 0.02, "BNB", "3423423");
 
 var_dump($response);
 ?>

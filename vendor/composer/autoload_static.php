@@ -19,6 +19,10 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         array (
             'Psr\\Http\\Message\\' => 17,
         ),
+        'M' => 
+        array (
+            'Mdanter\\Ecc\\' => 12,
+        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
@@ -27,6 +31,10 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
             'Graze\\GuzzleHttp\\JsonRpc\\' => 25,
             'Google\\Protobuf\\' => 16,
             'GPBMetadata\\Google\\Protobuf\\' => 28,
+        ),
+        'F' => 
+        array (
+            'FG\\' => 3,
         ),
         'B' => 
         array (
@@ -40,6 +48,10 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Mdanter\\Ecc\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mdanter/ecc/src',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -64,6 +76,10 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         'GPBMetadata\\Google\\Protobuf\\' => 
         array (
             0 => __DIR__ . '/..' . '/google/protobuf/src/GPBMetadata/Google/Protobuf',
+        ),
+        'FG\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fgrosse/phpasn1/lib',
         ),
         'Brick\\Math\\' => 
         array (

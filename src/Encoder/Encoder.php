@@ -19,6 +19,11 @@ class Encoder {
               foreach($subvalue as &$subsubvalue) {
                 if(is_array($subsubvalue)){
                   ksort($subsubvalue);
+                  foreach($subsubvalue as &$subsubsubvalue) {
+                    if(is_array($subsubsubvalue)){
+                      ksort($subsubsubvalue);
+                    }
+                  }
                 }
               }
             }
