@@ -1,5 +1,7 @@
 # binance-php-sdk
 
+**Note:** This repository is a work-in-progress, please see [Issue Tracker](https://github.com/hammadtq/binance-php-sdk/blob/master/issuetracker.md) to understand what methods are currently available in the sdk. 
+
 This repository contains the PHP-SDK to interact with [Binance DEX](http://binance.org). It's supported by mostly pure PHP code. The documentation for Binance DEX supported methods is [here](http://docs.binance.org).
 
 ## Installation
@@ -99,4 +101,4 @@ $address = $keystore->publicKeyToAddress($publicKey, 'tbnb');
 * Keystore reload
 * Fetching JSON-RPC functions
 * Fetch API functions
-* Transactions: Transfer, NewOrder, CancelOrder, TokenFreeze, TokenUnFreeze, Issue, Mint, Burn
+* Transactions: Transfer, NewOrder, CancelOrder, TokenFreeze, TokenUnFreeze, Issue, Mint, Burn, HTLT, DepositHTLT, ClaimHTLT, RefundHTLT
