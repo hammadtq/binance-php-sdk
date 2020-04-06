@@ -24,6 +24,11 @@ use Binance\Token;
 use Binance\DepositHashTimerLockMsg;
 use Binance\ClaimHashTimerLockMsg;
 use Binance\RefundHashTimerLockMsg;
+use Binance\TimeLock;
+use Binance\TimeLock_Token;
+use Binance\TimeReLock;
+use Binance\TimeReLock_Token;
+use Binance\TimeUnLock;
 
 /**
  * Creates a new transaction object.
@@ -371,12 +376,8 @@ class Transaction {
 
 
         $msgToSet = $htlt->serializeToString();
-        var_dump(bin2hex($msgToSet));
         $msgToSetPrefixed = hex2bin($this->typePrefixes['HTLTMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
-        echo "signature:";
-        var_dump(bin2hex($signatureToSet));
-        var_dump(bin2hex($msgToSetPrefixed));
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }
 
@@ -395,15 +396,10 @@ class Transaction {
         $token->setDenom($this->msgs[0]->amount["denom"]); 
         $token->setAmount($this->msgs[0]->amount["amount"]);
         $deposit->setAmount([$token]);
-        
-
 
         $msgToSet = $deposit->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['DepositHTLTMsg'].bin2hex($msgToSet));
         $signatureToSet = $this->serializeSign();
-        echo "signature:";
-        var_dump(bin2hex($signatureToSet));
-        var_dump(bin2hex($msgToSetPrefixed));
         return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
     }
 
@@ -454,9 +450,12 @@ class Transaction {
         }
 
         $lock = new TimeLock();
-        $lock->setFrom(bin2hex($this->msgs[0]->from));
+        $lock->setFrom(hex2bin($this->msgs[0]->from));
         $lock->setDescription($this->msgs[0]->description);
-        $lock->setAmount($this->msgs[0]->amount);
+        $token = new TimeLock_Token();
+        $token->setDenom($this->msgs[0]->amount["denom"]); 
+        $token->setAmount($this->msgs[0]->amount["amount"]);
+        $lock->setAmount([$token]);
         $lock->setLockTime($this->msgs[0]->lock_time);
 
         $msgToSet = $lock->serializeToString();
@@ -474,9 +473,13 @@ class Transaction {
         }
 
         $relock = new TimeReLock();
-        $relock->setFrom(bin2hex($this->msgs[0]->from));
+        $relock->setFrom(hex2bin($this->msgs[0]->from));
+        $relock->setTimeLockId($this->msgs[0]->time_lock_id);
         $relock->setDescription($this->msgs[0]->description);
-        $relock->setAmount($this->msgs[0]->amount);
+        $token = new TimeReLock_Token();
+        $token->setDenom($this->msgs[0]->amount["denom"]); 
+        $token->setAmount($this->msgs[0]->amount["amount"]);
+        $relock->setAmount([$token]);
         $relock->setLockTime($this->msgs[0]->lock_time);
 
         $msgToSet = $relock->serializeToString();
@@ -494,8 +497,8 @@ class Transaction {
         }
 
         $unlock = new TimeUnLock();
-        $unlock->setFrom(bin2hex($this->msgs[0]->from));
-        $unlock->setId($this->msgs[0]->time_lock_id);
+        $unlock->setFrom(hex2bin($this->msgs[0]->from));
+        $unlock->setTimeLockId($this->msgs[0]->time_lock_id);
 
         $msgToSet = $unlock->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['TimeUnlockMsg'].bin2hex($msgToSet));
@@ -529,7 +532,6 @@ class Transaction {
         $stdTx->setData("");
        
         $stdTxBytes = $stdTx->serializeToString();
-        var_dump(bin2hex($stdTxBytes));
 
         $txWithPrefix = $this->typePrefixes['StdTx'].bin2hex($stdTxBytes);
         $lengthPrefix = strlen(pack('H*', $txWithPrefix));

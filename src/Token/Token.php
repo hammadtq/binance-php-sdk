@@ -23,8 +23,6 @@ class Token {
    */
   function timeLock($fromAddress, $description, $amount, $lockTime) {
 
-    checkCoins($amount);
-
     if (strlen($description) > 128) {
       throw new Exception("description is too long");
     }
@@ -45,11 +43,11 @@ class Token {
 
     $signTimeLockMsg = (object)(array('from' => $fromAddress, 
         'description' => $description,
-        'amount' => $amount,
+        'amount' => [$amount],
         'lock_time' => $lockTime,
     ));
 
-    return ($this->$_bncClient->_prepareTransaction($timeLockMsg, $signTimeLockMsg, $fromAddress));
+    return ($this->_bncClient->_prepareTransaction($timeLockMsg, $signTimeLockMsg, $fromAddress));
   }
 
 
@@ -63,8 +61,6 @@ class Token {
    * @returns {Promise}  resolves with response (success or fail)
    */
   function timeRelock($fromAddress, $id, $description, $amount, $lockTime) {
-    
-    checkCoins($amount);
 
     if (strlen($description) > 128) {
       throw new Exception("description is too long");
@@ -88,11 +84,11 @@ class Token {
     $signTimeRelockMsg = (object)(array('from' => $fromAddress, 
         'time_lock_id' => $id,
         'description' => $description,
-        'amount' => $amount,
+        'amount' => [$amount],
         'lock_time' => $lockTime
     ));
 
-    return ($this->$_bncClient->_prepareTransaction($timeRelockMsg, $signTimeRelockMsg, $fromAddress));
+    return ($this->_bncClient->_prepareTransaction($timeRelockMsg, $signTimeRelockMsg, $fromAddress));
   }
 
   /**
@@ -115,7 +111,7 @@ class Token {
         'time_lock_id' => $id
     ));
 
-    return ($this->$_bncClient->_prepareTransaction($timeUnlockMsg, $signTimeUnlockMsg, $fromAddress));
+    return ($this->_bncClient->_prepareTransaction($timeUnlockMsg, $signTimeUnlockMsg, $fromAddress));
   }
 
 }
