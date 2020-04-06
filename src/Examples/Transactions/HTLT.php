@@ -16,13 +16,14 @@ $bncClient->setPrivateKey($privateKey);
 $coins = array("denom" => "BNB", "amount" => 100);
 
 $timestamp = time();
+$timestampToPack = pack('J*', $timestamp);
 
-$bytes = random_bytes(32);
-$randomNumberHash = bin2hex($bytes);
-
+$randomNumber = random_bytes(32);
+echo "Random Number: ". bin2hex($randomNumber); // you will need this in claimHTLT
+$randomNumberHash = hash('sha256', $randomNumber.$timestampToPack);
 
 $swapClient = new Swap($bncClient);
-$response = $swapClient->HTLT("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1upk2usj02frqhhw9c23789vd027awyzyl2mfpg", "", "", $randomNumberHash, $timestamp, $coins, "0.01:USDT.B-B7C", 10000, false);
+$response = $swapClient->HTLT("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "tbnb1upk2usj02frqhhw9c23789vd027awyzyl2mfpg", "", "", $randomNumberHash, $timestamp, $coins, "0.01:USDT.B-B7C", 360, false);
 
 var_dump($response);
 ?>

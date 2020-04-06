@@ -98,19 +98,18 @@ class Swap {
     $address = new Address();
     $fromCode = $address->DecodeAddress($from);
 
-
     $claimHTLTMsg = (object)(array('from' => $fromCode, 
-        'swap_id' => bin2hex(swapID), 
-        'random_number' => bin2hex(randomNumber),
+        'swap_id' => $swapID, 
+        'random_number' => $randomNumber,
         'msgType' => 'ClaimHTLTMsg',
     ));
 
     $signClaimHTLTMsg = (object)(array('from' => $from, 
-        'swap_id' => swapID, 
-        'random_number' => randomNumber
+        'swap_id' => $swapID, 
+        'random_number' => $randomNumber
     ));
 
-    return ($this->$_bncClient->_prepareTransaction($claimHTLTMsg, $signClaimHTLTMsg, $from));
+    return ($this->_bncClient->_prepareTransaction($claimHTLTMsg, $signClaimHTLTMsg, $from));
   }
 
   /**
@@ -125,15 +124,15 @@ class Swap {
     $fromCode = $address->DecodeAddress($from);
     
     $refundHTLTMsg = (object)(array('from' => $fromCode, 
-        'swap_id' => bin2hex(swapID), 
+        'swap_id' => $swapID, 
         'msgType' => 'RefundHTLTMsg',
     ));
 
     $signRefundHTLTMsg = (object)(array('from' => $from, 
-        'swap_id' => swapID
+        'swap_id' => $swapID
     ));
 
-    return ($this->$_bncClient->_prepareTransaction($refundHTLTMsg, $signRefundHTLTMsg, $from));
+    return ($this->_bncClient->_prepareTransaction($refundHTLTMsg, $signRefundHTLTMsg, $from));
   }
 
 }

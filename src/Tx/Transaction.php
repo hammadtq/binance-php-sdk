@@ -22,6 +22,9 @@ use Binance\SubmitProposal;
 use Binance\HashTimerLockTransferMsg;
 use Binance\Token;
 use Binance\DepositHashTimerLockMsg;
+use Binance\ClaimHashTimerLockMsg;
+use Binance\RefundHashTimerLockMsg;
+
 /**
  * Creates a new transaction object.
  * @example
@@ -412,10 +415,10 @@ class Transaction {
             throw new Exception("need signature");
         }
 
-        $claim = new ClaimHashTimerLockTransferMsg();
-        $claim->setFrom(bin2hex($this->msgs[0]->from));
-        $claim->setSwapId(bin2hex($this->msgs[0]->swap_id));
-        $claim->setRandomNumber(bin2hex($this->msgs[0]->random_number));
+        $claim = new ClaimHashTimerLockMsg();
+        $claim->setFrom(hex2bin($this->msgs[0]->from));
+        $claim->setSwapId(hex2bin($this->msgs[0]->swap_id));
+        $claim->setRandomNumber(hex2bin($this->msgs[0]->random_number));
 
 
         $msgToSet = $claim->serializeToString();
@@ -432,9 +435,9 @@ class Transaction {
             throw new Exception("need signature");
         }
 
-        $refund = new RefundHashTimerLockTransferMsg();
-        $refund->setFrom(bin2hex($this->msgs[0]->from));
-        $refund->setSwapId(bin2hex($this->msgs[0]->swap_id));
+        $refund = new RefundHashTimerLockMsg();
+        $refund->setFrom(hex2bin($this->msgs[0]->from));
+        $refund->setSwapId(hex2bin($this->msgs[0]->swap_id));
 
         $msgToSet = $refund->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['RefundHTLTMsg'].bin2hex($msgToSet));
