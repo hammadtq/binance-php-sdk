@@ -1,6 +1,7 @@
 <?php
 
 namespace Binance\Examples\Transactions;
+use Binance\Token\Token;
 
 require '../../../vendor/autoload.php';
 
@@ -12,6 +13,7 @@ $bncClient->initChain();
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 $bncClient->setPrivateKey($privateKey);
 
-$response = $bncClient->issueToken("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "TestBinance", "TBNB",  100000, true);
+$tokenClient = new Token($bncClient);
+$response = $tokenClient->issueToken("tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r", "TestBinance", "TBNB",  100000, true);
 var_dump($response);
 ?>

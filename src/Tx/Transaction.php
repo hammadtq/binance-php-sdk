@@ -17,6 +17,7 @@ use Binance\CancelOrder;
 use Binance\TokenFreeze;
 use Binance\TokenUnFreeze;
 use Binance\Issue;
+use Binance\Mint;
 use Binance\Burn;
 use Binance\SubmitProposal;
 use Binance\HashTimerLockTransferMsg;
@@ -239,7 +240,7 @@ class Transaction {
         }
 
         $issue = new Issue();
-        $issue->setFrom(bin2hex($this->msgs[0]->from));
+        $issue->setFrom(hex2bin($this->msgs[0]->from));
         $issue->setName($this->msgs[0]->name);
         $issue->setSymbol($this->msgs[0]->symbol);
         $issue->setTotalSupply($this->msgs[0]->total_supply);
@@ -260,7 +261,7 @@ class Transaction {
         }
 
         $burn = new Burn();
-        $burn->setFrom(bin2hex($this->msgs[0]->from));
+        $burn->setFrom(hex2bin($this->msgs[0]->from));
         $burn->setSymbol($this->msgs[0]->symbol);
         $burn->setAmount($this->msgs[0]->amount);
 
@@ -280,7 +281,7 @@ class Transaction {
         }
 
         $mint = new Mint();
-        $mint->setFrom(bin2hex($this->msgs[0]->from));
+        $mint->setFrom(hex2bin($this->msgs[0]->from));
         $mint->setSymbol($this->msgs[0]->symbol);
         $mint->setAmount($this->msgs[0]->amount);
 

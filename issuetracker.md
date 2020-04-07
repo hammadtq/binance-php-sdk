@@ -19,6 +19,9 @@
 - 'TimeLockMsg'
 - 'TimeUnlockMsg'
 - 'TimeRelockMsg'
+- 'IssueMsg'
+- 'BurnMsg'
+- 'MintMsg'
 
 ## RPC Get Methods
 - getAccount
@@ -29,9 +32,6 @@
 - 'MsgSubmitProposal' (test pending)
 - 'MsgDeposit' (test pending)
 - 'MsgVote' (test pending)
-- 'IssueMsg' (test pending)
-- 'BurnMsg' (test pending)
-- 'MintMsg' (test pending)
 - 'ListMsg' 
 - 'SetAccountFlagsMsg'
 
