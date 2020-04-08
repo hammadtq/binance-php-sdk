@@ -32,6 +32,8 @@ use Binance\TimeLock_Token;
 use Binance\TimeReLock;
 use Binance\TimeReLock_Token;
 use Binance\TimeUnLock;
+use Binance\PBList;
+use Binance\SetAccountFlag;
 
 /**
  * Creates a new transaction object.
@@ -516,6 +518,45 @@ class Transaction {
     }
 
     /**
+     * encode list transaction to hex which is compatible with amino
+     */
+    function serializeList() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $list = new PBList();
+        $list->setFrom(hex2bin($this->msgs[0]->from));
+        $list->setProposalId($this->msgs[0]->proposal_id);
+        $list->setBaseAssetSymbol($this->msgs[0]->base_asset_symbol);
+        $list->setQuoteAssetSymbol($this->msgs[0]->quote_asset_symbol);
+        $list->setInitPrice($this->msgs[0]->init_price);
+
+        $msgToSet = $list->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['ListMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
+     * encode list transaction to hex which is compatible with amino
+     */
+    function serializeSetAccountFlags() {
+        if (!$this->signatures) {
+            throw new Exception("need signature");
+        }
+
+        $flag = new SetAccountFlag();
+        $flag->setFrom(hex2bin($this->msgs[0]->from));
+        $flag->setFlags($this->msgs[0]->flags);
+
+        $msgToSet = $flag->serializeToString();
+        $msgToSetPrefixed = hex2bin($this->typePrefixes['SetAccountFlagsMsg'].bin2hex($msgToSet));
+        $signatureToSet = $this->serializeSign();
+        return ($this->serializeStdTx($msgToSetPrefixed, $signatureToSet));
+    }
+
+    /**
      * encode signatures in amino comaptible format
      */
     function serializeSign(){
@@ -565,9 +606,6 @@ class Transaction {
         if(!$msg){
             throw new Exception("signing message should not be null");
         }
-        echo "<br/>----<br/>";
-        var_dump($msg);
-        echo "<br/>----<br/>";
 
         $signBytes = $this->getSignBytes($msg);
 

@@ -144,7 +144,7 @@ class Gov {
   /**
    * Deposit tokens for activing proposal
    * @param {Number} proposalId
-   * @param {String} address
+   * @param {String} fromAddress
    * @param {Array} coins
    * @example
    * var coins = [{
@@ -198,6 +198,85 @@ class Gov {
     ));
 
     return ($this->_bncClient->_prepareTransaction($voteMsg, $signMsg, $voter));
+  }
+
+  /**
+   * @param {String} fromAddress
+   * @param {Number} proposalId
+   * @param {String} baseAsset
+   * @param {String} quoteAsset
+   * @param {Number} initPrice
+   * @param {Number} sequence optional sequence
+   * @return {Promise} resolves with response (success or fail)
+   */
+  function list($fromAddress, $proposalId, $baseAsset, $quoteAsset, $initPrice, $sequence = null) {
+    $address = new Address();
+    $accCode = $address->DecodeAddress($fromAddress);
+
+    if (!$address) {
+      throw new Exception("address should not be falsy");
+    }
+
+    if($proposalId <= 0){
+      throw new Error("proposal id should larger than 0");
+    }
+
+    if($initPrice <= 0){
+      throw new Error("price should larger than 0");
+    }
+
+    if (!$baseAsset) {
+      throw new Error("baseAsset should not be falsy");
+    }
+
+    if (!$quoteAsset) {
+      throw new Error("quoteAsset should not be falsy");
+    }
+
+    $init_price = strval(BigDecimal::of($initPrice)->multipliedBy(BASENUMBER));
+
+    $listMsg = (object)(array('from' => $accCode,
+        'proposal_id' => $proposalId,
+        'base_asset_symbol' => $baseAsset,
+        'quote_asset_symbol' => $quoteAsset,
+        'init_price' => $init_price,
+        'msgType' => "ListMsg"
+    ));
+
+    $signMsg = (object)(array(
+        'base_asset_symbol' => $baseAsset,
+        'from' => $fromAddress,
+        'init_price' => (int)$init_price,
+        'proposal_id' => $proposalId,
+        'quote_asset_symbol' => $quoteAsset,
+    ));
+
+    return ($this->_bncClient->_prepareTransaction($listMsg, $signMsg, $fromAddress));
+  }
+
+  /**
+   * Set account flags
+   * @param {String} fromAddress
+   * @param {Number} flags new value of account flags
+   * @param {Number} sequence optional sequence
+   * @return {Promise} resolves with response (success or fail)
+   */
+  function setAccountFlags($fromAddress, $flags, $sequence = null) {
+    $address = new Address();
+    $accCode = $address->DecodeAddress($fromAddress);
+
+    $msg = (object)(array(
+        'from' => $accCode,
+        'flags' => $flags,
+        'msgType' => "SetAccountFlagsMsg"
+    ));
+
+    $signMsg = (object)(array(
+        'flags' => $flags,
+        'from' => $fromAddress
+    ));
+
+    return ($this->_bncClient->_prepareTransaction($msg, $signMsg, $fromAddress));
   }
 }
 

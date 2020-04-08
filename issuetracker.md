@@ -25,16 +25,13 @@
 - 'MsgSubmitProposal'
 - 'MsgDeposit'
 - 'MsgVote'
+- 'ListMsg' 
+- 'SetAccountFlagsMsg'
 
 ## RPC Get Methods
 - getAccount
 
 # Implementations still pending or partially implemented
-
-## TxTypes:
-
-- 'ListMsg' 
-- 'SetAccountFlagsMsg'
 
 ## RPC Get Methods
 - getTokenInfo

@@ -237,6 +237,10 @@ class BncClient {
             $txToPost = $signedTx->serializeTimeRelock();
         }else if($msg->msgType == "TimeUnlockMsg"){
             $txToPost = $signedTx->serializeTimeUnlock();
+        }else if($msg->msgType == "ListMsg"){
+            $txToPost = $signedTx->serializeList();
+        }else if($msg->msgType == "SetAccountFlagsMsg"){
+            $txToPost = $signedTx->serializeSetAccountFlags();
         }
         $httpClient = new HttpClient($this->network);
         $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost, true);
