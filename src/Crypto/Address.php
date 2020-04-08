@@ -16,11 +16,11 @@ class Address {
         return $hex;
     }
 
-    function EncodeAddress($rawAddress){
+    function EncodeAddress($rawAddress, $prefix){
         $chars = array_values(unpack('C*', $rawAddress));
         $bech32 = new Bech32();
         $convertedBits = $bech32->convertBits($chars, count($chars), 8, 5, true);
-        $bech32EncodedAddress = $bech32->encode("tbnb", $convertedBits);
+        $bech32EncodedAddress = $bech32->encode($prefix, $convertedBits);
         return $bech32EncodedAddress;
     }
 

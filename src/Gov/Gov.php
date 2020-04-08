@@ -6,8 +6,6 @@ use Binance\Crypto\Address;
 use Brick\Math\BigDecimal;
 use Binance\Exception;
 
-//define("BASENUMBER", pow(10,8));
-
 class Gov {
 
     private $proposalTypeMapping;

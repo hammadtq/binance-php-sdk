@@ -30,11 +30,11 @@
 
 ## RPC Get Methods
 - getAccount
+- getTokenInfo
 
 # Implementations still pending or partially implemented
 
 ## RPC Get Methods
-- getTokenInfo
 - listAllTokens
 - getBalances
 - getBalance

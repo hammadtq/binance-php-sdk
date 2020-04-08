@@ -21,7 +21,7 @@ echo "<p>Sequence: ".$sequence."</p>";
 $rawAddress = $result -> getBase() -> getAddress();
 
 $address = new Address();
-$bech32EncodedAddress = $address->EncodeAddress($rawAddress);
+$bech32EncodedAddress = $address->EncodeAddress($rawAddress, "tbnb");
 echo "<p>Bech32 Encoded Address: ".$bech32EncodedAddress."</p>";
 
 
