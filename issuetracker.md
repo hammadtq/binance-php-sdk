@@ -22,6 +22,9 @@
 - 'IssueMsg'
 - 'BurnMsg'
 - 'MintMsg'
+- 'MsgSubmitProposal'
+- 'MsgDeposit'
+- 'MsgVote'
 
 ## RPC Get Methods
 - getAccount
@@ -29,9 +32,7 @@
 # Implementations still pending or partially implemented
 
 ## TxTypes:
-- 'MsgSubmitProposal' (test pending)
-- 'MsgDeposit' (test pending)
-- 'MsgVote' (test pending)
+
 - 'ListMsg' 
 - 'SetAccountFlagsMsg'
 

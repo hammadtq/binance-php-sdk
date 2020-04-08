@@ -239,7 +239,7 @@ class BncClient {
             $txToPost = $signedTx->serializeTimeUnlock();
         }
         $httpClient = new HttpClient($this->network);
-        $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost);
+        $result = $httpClient->Sendpost($this->api['broadcast'], $txToPost, true);
         return $result;
     }
 

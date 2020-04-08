@@ -12,7 +12,7 @@ class AbciRequest{
         $request = new Request($server);
         $json = $request->AsyncRequest('abci_query', ['path'=>'/account/'.$address])->wait(function($results){
             return $results;
-        });;
+        });
 
         $decodedIn64 = base64_decode($json->result->response->value);
         $protoClass = new AppAccount();

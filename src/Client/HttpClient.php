@@ -18,17 +18,20 @@ class HttpClient {
         }
     }
 
-    function SendPost($endpoint, $payload){
+    function SendPost($endpoint, $payload, $sync=false){
 
         $client = new GuzzleHttp\Client();
         
-        $response = $client->post($this->server.$endpoint, [
+        $response = $client->postAsync($this->server.$endpoint.'?sync='.$sync, [
             'debug' => FALSE,
+            'sync' => TRUE,
             'body' => $payload,
             'headers' => [
             'Content-Type' => 'text/plain',
             ]
-        ]);
+        ])->wait(function($results){
+            return $results;
+        });
         
         $body = $response->getBody();
         return json_decode((string) $body);

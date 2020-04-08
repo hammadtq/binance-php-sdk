@@ -20,6 +20,8 @@ use Binance\Issue;
 use Binance\Mint;
 use Binance\Burn;
 use Binance\SubmitProposal;
+use Binance\Deposit;
+use Binance\Vote;
 use Binance\HashTimerLockTransferMsg;
 use Binance\Token;
 use Binance\DepositHashTimerLockMsg;
@@ -303,8 +305,11 @@ class Transaction {
         $submit->setTitle($this->msgs[0]->title);
         $submit->setDescription($this->msgs[0]->description);
         $submit->setProposalType($this->msgs[0]->proposal_type);
-        $submit->setProposar(bin2hex($this->msgs[0]->proposar));
-        $submit->setCoins($this->msgs[0]->initial_deposit);
+        $submit->setProposer(hex2bin($this->msgs[0]->proposer));
+        $token = new Token();
+        $token->setDenom($this->msgs[0]->initial_deposit->denom); 
+        $token->setAmount($this->msgs[0]->initial_deposit->amount);
+        $submit->setInitialDeposit([$token]);
         $submit->setVotingPeriod($this->msgs[0]->voting_period);
 
         $msgToSet = $submit->serializeToString();
@@ -323,8 +328,11 @@ class Transaction {
 
         $deposit = new Deposit();
         $deposit->setProposalID($this->msgs[0]->proposal_id);
-        $deposit->setDepositor(bin2hex($this->msgs[0]->depositor));
-        $deposit->setCoins($this->msgs[0]->amount);
+        $deposit->setDepositer(hex2bin($this->msgs[0]->depositer));
+        $token = new Token();
+        $token->setDenom($this->msgs[0]->amount["denom"]); 
+        $token->setAmount($this->msgs[0]->amount["amount"]);
+        $deposit->setAmount([$token]);
 
         $msgToSet = $deposit->serializeToString();
         $msgToSetPrefixed = hex2bin($this->typePrefixes['MsgDeposit'].bin2hex($msgToSet));
@@ -343,7 +351,7 @@ class Transaction {
 
         $vote = new Vote();
         $vote->setProposalID($this->msgs[0]->proposal_id);
-        $vote->setVoter(bin2hex($this->msgs[0]->voter));
+        $vote->setVoter(hex2bin($this->msgs[0]->voter));
         $vote->setOption($this->msgs[0]->option);
 
         $msgToSet = $vote->serializeToString();
@@ -557,6 +565,9 @@ class Transaction {
         if(!$msg){
             throw new Exception("signing message should not be null");
         }
+        echo "<br/>----<br/>";
+        var_dump($msg);
+        echo "<br/>----<br/>";
 
         $signBytes = $this->getSignBytes($msg);
 
