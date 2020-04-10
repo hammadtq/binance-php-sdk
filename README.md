@@ -98,6 +98,7 @@ $address = $keystore->publicKeyToAddress($publicKey, 'tbnb');
 ## Supported Methods
 
 * Keypair generation
+* Keypair generation with mnemonic
 * Keystore reload
 * Fetching JSON-RPC functions
 * Fetch API functions

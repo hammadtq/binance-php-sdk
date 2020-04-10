@@ -5,6 +5,7 @@
 - Reload Binance DEX Keystore
 - Decode/Encode Addresses
 - BIP39
+- BIP32
 
 ## TxTypes
 - 'MsgSend' 
@@ -43,7 +44,6 @@
 - getDepth
 
 ## Crypto 
-- BIP32 (couldn't find any reliable up-to-date php library, will need to implement from scratch)
 - Ledger (need to understand this)
 - Export Keystore
 

@@ -7,7 +7,6 @@ require '../../vendor/autoload.php';
 use Binance\Types\Byte;
 use Binance\Crypto\Keystore;
 
-use BitWasp\Bitcoin\Address\PayToPubKeyHashAddress;
 use BitWasp\Bitcoin\Bitcoin;
 use BitWasp\Bitcoin\Crypto\Random\Random;
 use BitWasp\Bitcoin\Key\Factory\HierarchicalKeyFactory;
@@ -24,7 +23,6 @@ $entropy = $random->bytes(Bip39Mnemonic::MAX_ENTROPY_BYTE_LEN);
 $bip39 = MnemonicFactory::bip39();
 $seedGenerator = new Bip39SeedGenerator();
 $mnemonic = $bip39->entropyToMnemonic($entropy);
-$mnemonic = "dress boy chief rhythm always foil become chest cook alert purchase dial field what safe dutch kiwi buyer divorce human tiny light upgrade enable";
 var_dump($mnemonic);
 
 // Derive a seed from mnemonic/password
