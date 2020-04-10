@@ -9,6 +9,8 @@ return array(
     'c964ee0ededf28c96ebd9db5099ef910' => $vendorDir . '/guzzlehttp/promises/src/functions_include.php',
     '7b11c4dc42b3b3023073cb14e519683c' => $vendorDir . '/ralouphie/getallheaders/src/getallheaders.php',
     'a0edc8309cc5e1d60e3047b5df6b7052' => $vendorDir . '/guzzlehttp/psr7/src/functions_include.php',
+    'a626201e4406003b96eee958a069f504' => $vendorDir . '/bitwasp/bech32/src/bech32.php',
     '37a3dc5111fe8f707ab4c132ef1dbc62' => $vendorDir . '/guzzlehttp/guzzle/src/functions_include.php',
+    '7cfce27594bbc1dd0dbf7e3eb5cd4911' => $vendorDir . '/bitwasp/bitcoin/src/Script/functions.php',
     '5ebdd4011925210a67092cc3543c2644' => $vendorDir . '/graze/guzzle-jsonrpc/src/functions_include.php',
 );

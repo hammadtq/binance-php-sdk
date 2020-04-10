@@ -6,37 +6,44 @@ require '../../vendor/autoload.php';
 
 use Binance\Types\Byte;
 use Binance\Crypto\Keystore;
-use Binance\Crypto\Address;
-use Binance\Crypto\BIP39\BIP39;
-use Binance\Crypto\BIP32;
 
-$password = "";
-$entropy = BIP39::generateEntropy(256);
-//$mnemonic = BIP39::entropyToMnemonic($entropy);
-$mnemonic = 'clarify fossil armed prize quit gossip famous cute usual fee coach rebuild enlist fine zero glance live embark world undo piano little magic degree';
-$seed = BIP39::mnemonicToSeedHex($mnemonic, $password);
-//$seed = BIP39::mnemonicToEntropy($mnemonic);
+use BitWasp\Bitcoin\Address\PayToPubKeyHashAddress;
+use BitWasp\Bitcoin\Bitcoin;
+use BitWasp\Bitcoin\Crypto\Random\Random;
+use BitWasp\Bitcoin\Key\Factory\HierarchicalKeyFactory;
+use BitWasp\Bitcoin\Mnemonic\Bip39\Bip39Mnemonic;
+use BitWasp\Bitcoin\Mnemonic\Bip39\Bip39SeedGenerator;
+use BitWasp\Bitcoin\Mnemonic\MnemonicFactory;
 
-unset($entropy); // ignore, forget about this, don't use it!
+$network = Bitcoin::getNetwork();
 
-var_dump($mnemonic); // this is what you print on a piece of paper, etc
-var_dump($password); // this is secret of course
-var_dump($seed); // this is what you use to generate a key
+// Generate a mnemonic
+$random = new Random();
+$entropy = $random->bytes(Bip39Mnemonic::MAX_ENTROPY_BYTE_LEN);
 
-echo "-----";
+$bip39 = MnemonicFactory::bip39();
+$seedGenerator = new Bip39SeedGenerator();
+$mnemonic = $bip39->entropyToMnemonic($entropy);
+$mnemonic = "dress boy chief rhythm always foil become chest cook alert purchase dial field what safe dutch kiwi buyer divorce human tiny light upgrade enable";
+var_dump($mnemonic);
 
-$master = BIP32::master_key($seed);
-$def = "44'/714'/0'/0/";
-$key = BIP32::build_key($master, $def);
-var_dump($key[0]);
+// Derive a seed from mnemonic/password
+$seed = $seedGenerator->getSeed($mnemonic, '');
+echo $seed->getHex() . "\n";
+
+$hdFactory = new HierarchicalKeyFactory();
+$bip32 = $hdFactory->fromEntropy($seed);
+
+$derivedPath = $bip32->derivePath("44'/714'/0'/0/0 ");
+
+$privateKey = $derivedPath->getPrivateKey()->getHex();
+var_dump("Private Key: ".$privateKey);
+
+$publicKey = $derivedPath->getPublicKey()->getHex();
+var_dump("Public Key: ".$publicKey);
+
 $keystore = new Keystore();
-$privateKey = Byte::init($keystore->createPrivateKeyWithSeed($key[0]));
-$publicKey = $keystore->createPublicKey($privateKey);
-$address = $keystore->publicKeyToAddress($publicKey, 'tbnb');
-var_dump($privateKey);
-var_dump($privateKey->getHex());
-var_dump(Byte::init(hex2bin($privateKey->getHex())));
-var_dump($publicKey);
-var_dump($address);
+$address = $keystore->mnemonicPublicKeyToAddress(Byte::init($publicKey), 'tbnb');
+var_dump("Address: ".$address);
 
 ?>

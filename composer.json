@@ -10,6 +10,7 @@
         "graze/guzzle-jsonrpc": "^3.2",
         "bitwasp/buffertools": "^0.5.7",
         "google/protobuf": "^3.11",
-        "brick/math": "^0.8.14"
+        "brick/math": "^0.8.14",
+        "bitwasp/bitcoin": "^1.0"
     }
 }

@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'lastguest\\' => array($vendorDir . '/lastguest/murmurhash/src/lastguest'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
     'Mdanter\\Ecc\\' => array($vendorDir . '/mdanter/ecc/src'),
     'GuzzleHttp\\Psr7\\' => array($vendorDir . '/guzzlehttp/psr7/src'),
@@ -15,8 +16,11 @@ return array(
     'Google\\Protobuf\\' => array($vendorDir . '/google/protobuf/src/Google/Protobuf'),
     'GPBMetadata\\Google\\Protobuf\\' => array($vendorDir . '/google/protobuf/src/GPBMetadata/Google/Protobuf'),
     'FG\\' => array($vendorDir . '/fgrosse/phpasn1/lib'),
+    'Composer\\Semver\\' => array($vendorDir . '/composer/semver/src'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
     'BitWasp\\Buffertools\\' => array($vendorDir . '/bitwasp/buffertools/src/Buffertools'),
+    'BitWasp\\Bitcoin\\' => array($vendorDir . '/bitwasp/bitcoin/src'),
+    'BitWasp\\Bech32\\' => array($vendorDir . '/bitwasp/bech32/src'),
     'Binance\\' => array($baseDir . '/src'),
     '' => array($baseDir . '/gen'),
 );

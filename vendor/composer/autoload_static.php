@@ -10,11 +10,17 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
+        'a626201e4406003b96eee958a069f504' => __DIR__ . '/..' . '/bitwasp/bech32/src/bech32.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '7cfce27594bbc1dd0dbf7e3eb5cd4911' => __DIR__ . '/..' . '/bitwasp/bitcoin/src/Script/functions.php',
         '5ebdd4011925210a67092cc3543c2644' => __DIR__ . '/..' . '/graze/guzzle-jsonrpc/src/functions_include.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'l' => 
+        array (
+            'lastguest\\' => 10,
+        ),
         'P' => 
         array (
             'Psr\\Http\\Message\\' => 17,
@@ -36,15 +42,25 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         array (
             'FG\\' => 3,
         ),
+        'C' => 
+        array (
+            'Composer\\Semver\\' => 16,
+        ),
         'B' => 
         array (
             'Brick\\Math\\' => 11,
             'BitWasp\\Buffertools\\' => 20,
+            'BitWasp\\Bitcoin\\' => 16,
+            'BitWasp\\Bech32\\' => 15,
             'Binance\\' => 8,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'lastguest\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/lastguest/murmurhash/src/lastguest',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
@@ -81,6 +97,10 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         array (
             0 => __DIR__ . '/..' . '/fgrosse/phpasn1/lib',
         ),
+        'Composer\\Semver\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/composer/semver/src',
+        ),
         'Brick\\Math\\' => 
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
@@ -88,6 +108,14 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         'BitWasp\\Buffertools\\' => 
         array (
             0 => __DIR__ . '/..' . '/bitwasp/buffertools/src/Buffertools',
+        ),
+        'BitWasp\\Bitcoin\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/bitwasp/bitcoin/src',
+        ),
+        'BitWasp\\Bech32\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/bitwasp/bech32/src',
         ),
         'Binance\\' => 
         array (
@@ -99,12 +127,23 @@ class ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2
         0 => __DIR__ . '/../..' . '/gen',
     );
 
+    public static $prefixesPsr0 = array (
+        'P' => 
+        array (
+            'Pleo' => 
+            array (
+                0 => __DIR__ . '/..' . '/pleonasm/merkle-tree/src',
+            ),
+        ),
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2::$prefixDirsPsr4;
             $loader->fallbackDirsPsr4 = ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2::$fallbackDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitf0dda43d4ec6ed6258258913c32318c2::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

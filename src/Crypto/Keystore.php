@@ -159,9 +159,13 @@ class Keystore
      * @return Address
      * @throws Exception
      */
-    private function parseAddress(Byte $publicKey, String $addrPrefix): String
+    private function parseAddress(Byte $publicKey, String $addrPrefix, Bool $compressedKey = true): String
     {   
-        $compressed = $publicKey->getHex();
+        if($compressedKey){
+            $compressed = $publicKey->getHex();
+        }else{
+            $compressed = $publicKey;
+        }
         
         $sha256 = hash('sha256', hex2bin($compressed));
         $ripemd60 = hash('ripemd160', hex2bin($sha256));
@@ -231,5 +235,10 @@ class Keystore
     public function publicKeyToAddress($publicKey, $addrPrefix){
         return($this->parseAddress($publicKey, $addrPrefix));
     }
+
+    //This function is only used while creating from mnemonic
+    public function mnemonicPublicKeyToAddress($publicKey, $addrPrefix){
+        return($this->parseAddress($publicKey, $addrPrefix, false));
+    } 
 
 }
