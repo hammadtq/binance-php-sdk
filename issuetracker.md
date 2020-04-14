@@ -6,6 +6,7 @@
 - Decode/Encode Addresses
 - BIP39
 - BIP32
+- Export Keystore
 
 ## TxTypes
 - 'MsgSend' 
@@ -45,5 +46,4 @@
 
 ## Crypto 
 - Ledger (need to understand this)
-- Export Keystore
 

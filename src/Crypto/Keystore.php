@@ -4,6 +4,9 @@ namespace Binance\Crypto;
 
 use Binance\Types\Byte;
 use Binance\Crypto\Bech32;
+use Binance\Utils\UtilFunctions;
+use Ramsey\Uuid\Uuid;
+use Binance\Crypto\Keccak;
 
 class Keystore
 {
@@ -208,6 +211,51 @@ class Keystore
             $this->transactionSigner = new TransactionSigner($chainId);
         }
         return $this->transactionSigner->sign($transaction, $this->getPrivateKey());
+    }
+
+    /**
+     * Generates a keystore object (web3 secret storage format) given a private key to store and a password.
+     * @param {string} privateKeyHex the private key hexstring.
+     * @param {string} password the password.
+     * @return {object} the keystore object.
+     */
+    function generateKeyStore ($privateKeyHex, $password) {
+        $salt = \openssl_random_pseudo_bytes(32);
+        $iv = \openssl_random_pseudo_bytes(16);
+
+        $cipherAlg = "aes-256-ctr";
+    
+        $kdf = "pbkdf2";
+
+        $kdfparams = (object)(array('dklen' => 32,
+                                    'salt' => bin2hex($salt),
+                                    'c' => 262144,
+                                    'prf' => "hmac-sha256"));
+
+            
+        $derivedKey = hash_pbkdf2('sha256', $password, $salt, $kdfparams->c,  $kdfparams->dklen, true);
+        
+        $derivedKeySlice = substr($derivedKey, 0, 32);
+
+        $ciphertext = openssl_encrypt(hex2bin($privateKeyHex), $cipherAlg, $derivedKeySlice, OPENSSL_RAW_DATA, $iv);
+
+        $bufferValue = bin2hex(substr($derivedKey, 16, 32)).bin2hex($ciphertext);
+        var_dump($bufferValue);
+
+        $uuid4 = Uuid::uuid4();
+
+        $json = json_encode(array('version' => 1,
+            'id' => $uuid4->toString(),
+            'crypto' => array('ciphertext' => bin2hex($ciphertext),
+                        'cipherparams' => array('iv' => bin2hex($iv)),
+                        'cipher' => $cipherAlg,
+                        'kdf' => $kdf,
+                        'kdfparams' => $kdfparams,
+                        'mac' => keccak::hash($bufferValue, 256))
+        ));
+
+
+        return $json;
     }
 
 

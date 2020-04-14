@@ -11,6 +11,7 @@
         "bitwasp/buffertools": "^0.5.7",
         "google/protobuf": "^3.11",
         "brick/math": "^0.8.14",
-        "bitwasp/bitcoin": "^1.0"
+        "bitwasp/bitcoin": "^1.0",
+        "ramsey/uuid": "^4.0"
     }
 }

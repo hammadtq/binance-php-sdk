@@ -11,6 +11,8 @@ return array(
     'a0edc8309cc5e1d60e3047b5df6b7052' => $vendorDir . '/guzzlehttp/psr7/src/functions_include.php',
     'a626201e4406003b96eee958a069f504' => $vendorDir . '/bitwasp/bech32/src/bech32.php',
     '37a3dc5111fe8f707ab4c132ef1dbc62' => $vendorDir . '/guzzlehttp/guzzle/src/functions_include.php',
+    '320cde22f66dd4f5d3fd621d3e88b98f' => $vendorDir . '/symfony/polyfill-ctype/bootstrap.php',
     '7cfce27594bbc1dd0dbf7e3eb5cd4911' => $vendorDir . '/bitwasp/bitcoin/src/Script/functions.php',
     '5ebdd4011925210a67092cc3543c2644' => $vendorDir . '/graze/guzzle-jsonrpc/src/functions_include.php',
+    'e39a8b23c42d4e1452234d762b03835a' => $vendorDir . '/ramsey/uuid/src/functions.php',
 );
