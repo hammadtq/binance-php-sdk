@@ -190,7 +190,7 @@ class BncClient {
     }
       
     $httpClient = new HttpClient($this->network);
-    $result = $httpClient->GetAsync($this->api['getAccount'].$address);
+    $result = $httpClient->GetAsync($this->api['getAccount']."/".$address);
     return $result;
   }
 

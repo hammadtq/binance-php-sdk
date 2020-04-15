@@ -10,8 +10,8 @@ $bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 
 // getAccount
-//$result = $bncClient->getAccount('tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r');
-//var_dump($result);
+$result = $bncClient->getAccount('tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r');
+var_dump($result);
 
 //getBalance
 //$result = $bncClient->getBalance('tbnb1yqyppmev2m4z96r4svwtjq8eqp653pt6elq33r');
@@ -46,5 +46,5 @@ $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
 // var_dump($result);
 
 //getSwapByCreator
-$result = $bncClient->getSwapByRecipient('tbnb1upk2usj02frqhhw9c23789vd027awyzyl2mfpg');
-var_dump($result);
+// $result = $bncClient->getSwapByRecipient('tbnb1upk2usj02frqhhw9c23789vd027awyzyl2mfpg');
+// var_dump($result);
