@@ -1,7 +1,5 @@
 # binance-php-sdk
 
-**Note:** This repository is a work-in-progress, please see [Issue Tracker](https://github.com/hammadtq/binance-php-sdk/blob/master/issuetracker.md) to understand what methods are currently available in the sdk. 
-
 This repository contains the PHP-SDK to interact with [Binance DEX](http://binance.org). It's supported by mostly pure PHP code. The documentation for Binance DEX supported methods is [here](http://docs.binance.org).
 
 ## Installation
@@ -42,6 +40,8 @@ The repository was made on Mac OSX using PHP version `7.15.3`. You will also nee
 To handle big numbers, the SDK makes use of [brick/math](https://github.com/brick/math) precision library. Please consider using this or another `bcmath` or `gmp` based solutions while dealing with blockchain based numbers.
 
 ## Examples
+
+**Note:** Please see [Issue Tracker](https://github.com/hammadtq/binance-php-sdk/blob/master/issuetracker.md) to understand what methods are currently available in the sdk. 
 
 You can find full [example](https://github.com/hammadtq/binance-php-sdk/tree/master/src/Examples) scripts in the src folder.
 
