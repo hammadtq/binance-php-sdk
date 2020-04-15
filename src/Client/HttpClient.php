@@ -36,5 +36,31 @@ class HttpClient {
         $body = $response->getBody();
         return json_decode((string) $body);
     }
+
+    // async function
+    function GetAsync($endpoint){
+
+        $client = new GuzzleHttp\Client();
+        
+        $response = $client->getAsync($this->server.$endpoint)->wait(function($results){
+            return $results;
+        });
+        
+        $body = $response->getBody();
+        return json_decode((string) $body);
+    }
+
+    // sync function
+    function GetSync($endpoint){
+
+        $client = new GuzzleHttp\Client();
+        
+        $response = $client->getSync($this->server.$endpoint)->wait(function($results){
+            return $results;
+        });
+        
+        $body = $response->getBody();
+        return json_decode((string) $body);
+    }
 }
 ?>

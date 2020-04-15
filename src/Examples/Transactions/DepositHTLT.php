@@ -9,8 +9,8 @@ use Binance\Swap\Swap;
 
 $privateKey = 'd84899c0012ebc48b50b9ea93b9c8d911078f11530d08fb271769b7e8124d1ae';
 $bncClient = new BncClient('https://data-seed-pre-2-s1.binance.org');
-$bncClient->initChain();
 $bncClient->chooseNetwork("testnet"); // or this can be "mainnet"
+$bncClient->initChain();
 $bncClient->setPrivateKey($privateKey);
 
 $coins = array("denom" => "BNB", "amount" => 100);

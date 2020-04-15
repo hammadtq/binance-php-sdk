@@ -50,10 +50,9 @@ class BncClient {
    */
     function initChain() {
         if (!$this->chainId) {
-            $client = new GuzzleHttp\Client();
-            $res = $client->get('https://testnet-dex.binance.org/api/v1/node-info');
-            $json = json_decode($res->getBody(), true);
-            $this->chainId = $json["node_info"]["network"];
+            $httpClient = new HttpClient($this->network);
+            $json = $httpClient->GetAsync($this->api['nodeInfo']);
+            $this->chainId = $json->node_info->network;
         }
         return $this;
     }
@@ -179,6 +178,126 @@ class BncClient {
     return ($this->_prepareTransaction($CancelOrderMsg, $signMsg, $this->address, $sequence, ""));
   }
 
+
+  /**
+   * get account
+   * @param {String} address
+   * @return {Promise} resolves with http response
+   */
+  function getAccount($address) {
+    if (!$address) {
+      throw new Exception("address should not be falsy");
+    }
+      
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getAccount'].$address);
+    return $result;
+  }
+
+  /**
+   * get balances
+   * @param {String} address optional address
+   * @return {Promise} resolves with http response
+   */
+  function getBalance($address) {
+      $data = $this->getAccount($address);
+      return $data->balances;
+  }
+
+  /**
+   * get markets
+   * @param {Number} limit max 1000 is default
+   * @param {Number} offset from beggining, default 0
+   * @return {Promise} resolves with http response
+   */
+  function getMarkets($limit = 1000, $offset = 0) {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getMarkets']."?limit=".$limit."&offset=".$offset);
+    return $result;
+  }
+
+  /**
+   * get transactions for an account
+   * @param {String} address optional address
+   * @param {Number} offset from beggining, default 0
+   * @return {Promise} resolves with http response
+   */
+  function getTransactions($address, $offset = 0) {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getTransactions']."?address=".$address."&offset=".$offset);
+    return $result;
+  }
+
+  /**
+   * get transaction
+   * @param {String} hash the transaction hash
+   * @return {Promise} resolves with http response
+   */
+  function getTx($hash) {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getTx']."/".$hash);
+    return $result;
+  }
+
+  /**
+   * get depth for a given market
+   * @param {String} symbol the market pair
+   * @return {Promise} resolves with http response
+   */
+  function getDepth($symbol = "BNB_BUSD-BD1") {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getDepth']."?symbol=".$symbol);
+    return $result;
+  }
+
+  /**
+   * get open orders for an address
+   * @param {String} address binance address
+   * @param {String} symbol binance BEP2 symbol
+   * @return {Promise} resolves with http response
+   */
+  function getOpenOrders($address) {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getOpenOrders']."?address=".$address);
+    return $result;
+  }
+
+  /**
+   * get atomic swap
+   * @param {String} swapID: ID of an existing swap
+   * @return {Promise} AtomicSwap
+   */
+  function getSwapByID($swapID) {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getSwaps']."/".$swapID);
+    return $result;
+  }
+
+  /**
+   * query atomic swap list by creator address
+   * @param {String} creator: swap creator address
+   * @param {Number} offset from beginning, default 0
+   * @param {Number} limit, max 1000 is default
+   * @return {Promise} Array of AtomicSwap
+   */
+  function getSwapByCreator($creator, $limit = 100, $offset = 0) {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getSwaps']."?fromAddress=".$creator."&limit=".$limit."&offset=".$offset);
+    return $result;
+  }
+
+  /**
+   * query atomic swap list by recipient address
+   * @param {String} recipient: the recipient address of the swap
+   * @param {Number} offset from beginning, default 0
+   * @param {Number} limit, max 1000 is default
+   * @return {Promise} Array of AtomicSwap
+   */
+  function getSwapByRecipient($recipient, $limit = 100, $offset = 0) {
+    $httpClient = new HttpClient($this->network);
+    $result = $httpClient->GetAsync($this->api['getSwaps']."?toAddress=".$recipient."&limit=".$limit."&offset=".$offset);
+    return $result;
+  }
     /**
    * Prepare a serialized raw transaction for sending to the blockchain.
    * @param {Object} msg the msg object
