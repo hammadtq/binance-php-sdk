@@ -30,6 +30,18 @@
 - 'ListMsg' 
 - 'SetAccountFlagsMsg'
 
+## HTTP-API Get Methods
+- getAccount
+- getBalance
+- getMarkets
+- getTransactions
+- getTx
+- getDepth
+- getOpenOrders
+- getSwapByID
+- getSwapByCreator
+- getSwapByRecipient
+
 ## RPC Get Methods
 - getAccount
 - getTokenInfo
